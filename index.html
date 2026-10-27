@@ -1,0 +1,2372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tipos de juntas y posiciones de soldeo - CFGM Soldadura y Calderería (SAN - SMAW 111)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #090d16;
+            color: #f8fafc;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        #canvas-container {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+        }
+        .ui-layer {
+            position: relative;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .pointer-events-auto {
+            pointer-events: auto;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+        .custom-scroll::-webkit-scrollbar {
+            width: 5px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.4);
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(245, 158, 11, 0.45);
+            border-radius: 9999px;
+        }
+        .iso-node {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col justify-between">
+
+    <!-- Lienzo 3D / WebXR -->
+    <div id="canvas-container"></div>
+
+    <!-- CABECERA SUPERIOR -->
+    <header class="ui-layer w-full px-2.5 pt-2 flex flex-wrap items-center justify-between gap-2">
+        <!-- Identificación académica oficial -->
+        <div class="glass-panel px-3 py-1.5 rounded-2xl flex items-center gap-2.5 pointer-events-auto shadow-lg">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow text-slate-950 font-black text-xs shrink-0" title="Soldadura y Posiciones de Soldeo">
+                <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Casco / Pantalla de soldadura -->
+                    <path d="M6 4.5C6 3.67 6.67 3 7.5 3H16.5C17.33 3 18 3.67 18 4.5V13.5C18 17.5 14.5 20.5 12 21.5C9.5 20.5 6 17.5 6 13.5V4.5Z" fill="#0f172a" stroke="#0f172a" stroke-width="1.5" stroke-linejoin="round"/>
+                    <!-- Visor inactínico iluminado -->
+                    <rect x="8" y="6.5" width="8" height="4.5" rx="1" fill="#38bdf8" stroke="#ffffff" stroke-width="1.2"/>
+                    <!-- Destello de arco en el visor -->
+                    <path d="M12 7.5L12.6 8.4L13.5 8.7L12.6 9L12 9.9L11.4 9L10.5 8.7L11.4 8.4L12 7.5Z" fill="#ffffff"/>
+                    <!-- Rejilla inferior / Mentonera -->
+                    <line x1="9.5" y1="14.5" x2="14.5" y2="14.5" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="10.5" y1="17" x2="13.5" y2="17" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="leading-tight">
+                <div class="flex flex-wrap items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider text-amber-400">
+                    <span>CFGM SOLDADURA Y CALDERERÍA</span>
+                    <span class="text-slate-600">•</span>
+                    <span class="text-sky-400">Módulo: SAN</span>
+                    <span class="text-slate-600">•</span>
+                    <span class="text-emerald-400">Procedimiento: SMAW-111</span>
+                    <span class="text-slate-600">•</span>
+                    <span class="text-slate-300">CIFP Cerdeño</span>
+                </div>
+                <h1 class="font-black text-sm sm:text-base text-white tracking-tight">Tipos de juntas y posiciones de soldeo</h1>
+            </div>
+        </div>
+
+        <!-- Selector de Pestañas y Controles -->
+        <div class="flex flex-wrap items-center gap-1.5 pointer-events-auto">
+            <div class="glass-panel px-2.5 py-1.5 rounded-2xl flex items-end gap-2 shadow-lg">
+                
+                <!-- Agrupación de las 2 normas bajo el rótulo "Posiciones de soldeo" -->
+                <div class="flex flex-col items-center">
+                    <span class="text-[9px] font-black uppercase tracking-widest text-amber-300/95 mb-1 leading-none">
+                        Posiciones de soldeo
+                    </span>
+                    <div class="flex items-center gap-1 bg-slate-900/60 p-0.5 rounded-xl border border-indigo-400/25">
+                        <button id="norm-asme" type="button" class="px-3 py-1.5 rounded-lg text-xs font-extrabold bg-indigo-900/80 text-indigo-100 border border-indigo-400/40 hover:bg-indigo-800/90 hover:text-white transition cursor-pointer">
+                            Norma ASME / AWS
+                        </button>
+                        <button id="norm-iso" type="button" class="px-3 py-1.5 rounded-lg text-xs font-extrabold bg-indigo-900/80 text-indigo-100 border border-indigo-400/40 hover:bg-indigo-800/90 hover:text-white transition cursor-pointer">
+                            UNE-EN ISO 6947
+                        </button>
+                    </div>
+                </div>
+
+                <div class="h-7 w-[1px] bg-slate-700/70 self-center"></div>
+
+                <!-- Pestaña independiente para Tipos de Junta -->
+                <div class="flex flex-col items-center">
+                    <span class="text-[9px] font-black uppercase tracking-widest text-emerald-300/95 mb-1 leading-none">
+                        Geometría de Unión
+                    </span>
+                    <div class="p-0.5">
+                        <button id="norm-joints" type="button" class="px-3 py-1.5 rounded-lg text-xs font-extrabold bg-emerald-900/80 text-emerald-100 border border-emerald-400/40 hover:bg-emerald-800/90 hover:text-white transition cursor-pointer">
+                            Tipos de Junta
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controles de Escala, Animación y Meta Quest 3 -->
+            <div class="glass-panel p-1.5 rounded-2xl flex items-center gap-1 shadow-lg">
+                <div class="flex items-center bg-slate-900/90 rounded-xl px-1 py-0.5 border border-slate-700/70" title="Escalar pieza 3D">
+                    <button id="btn-scale-down" type="button" class="w-6 h-6 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 font-black text-xs cursor-pointer">-</button>
+                    <span id="scale-label" class="text-[10px] font-extrabold text-amber-400 px-1.5 min-w-[38px] text-center">100%</span>
+                    <button id="btn-scale-up" type="button" class="w-6 h-6 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 font-black text-xs cursor-pointer">+</button>
+                </div>
+
+                <button id="btn-toggle-anim" type="button" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-amber-400 transition cursor-pointer" title="Pausar/Reanudar">
+                    ⏸
+                </button>
+                <div class="flex items-center bg-slate-900/90 rounded-xl px-1.5 py-0.5 border border-slate-700/70 gap-1" title="Sonido de arco SMAW (chisporroteo)">
+                    <button id="btn-toggle-sound" type="button" class="w-6 h-6 rounded-lg text-amber-400 hover:text-white hover:bg-slate-800 font-bold text-xs cursor-pointer flex items-center justify-center" title="Activar/Silenciar sonido de soldadura">
+                        🔊
+                    </button>
+                    <input id="sound-volume" type="range" min="0" max="100" value="45" class="w-14 h-1.5 accent-amber-400 bg-slate-700 rounded-lg cursor-pointer" title="Volumen del arco">
+                </div>
+                <button id="btn-reset-cam" type="button" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 transition cursor-pointer" title="Centrar vista">
+                    🎥
+                </button>
+                <button id="btn-enter-ar" type="button" class="px-2 py-1.5 rounded-xl text-[10px] font-extrabold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 transition cursor-pointer" title="Meta Quest 3 AR">
+                    🥽 AR
+                </button>
+                <button id="btn-enter-vr" type="button" class="px-2 py-1.5 rounded-xl text-[10px] font-extrabold bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 transition cursor-pointer" title="Meta Quest 3 VR">
+                    🏛️ VR
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- AVISO INTERMITENTE PARA TUBERÍA 1G (más pequeño, justo al lado de la animación) -->
+    <div id="pipe-1g-alert" class="hidden fixed top-24 left-1/2 -translate-x-[15%] z-20 pointer-events-none">
+        <div class="animate-pulse bg-amber-500/15 border border-amber-400/80 text-amber-200 px-2.5 py-1 rounded-lg shadow-lg backdrop-blur-md flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+            <span class="text-[11px] font-black uppercase tracking-wider">🔄 Aquí lo que gira es el tubo</span>
+        </div>
+    </div>
+
+    <!-- ZONA CENTRAL -->
+    <main class="ui-layer flex-1 min-h-0 flex flex-col sm:flex-row items-stretch sm:items-start justify-between px-2.5 py-2 gap-2 overflow-hidden">
+
+        <!-- PANEL IZQUIERDO -->
+        <aside class="glass-panel w-full sm:w-64 rounded-2xl p-2.5 flex flex-col gap-2 pointer-events-auto shadow-2xl max-h-[42vh] sm:max-h-full overflow-y-auto custom-scroll">
+
+            <!-- MODO 1: NORMA ASME / AWS -->
+            <div id="panel-asme" class="flex flex-col gap-2">
+                <div class="grid grid-cols-3 gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
+                    <button id="subtab-g" type="button" class="py-1.5 px-1 rounded-lg text-[11px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/40 transition cursor-pointer">
+                        A Tope (G)
+                    </button>
+                    <button id="subtab-f" type="button" class="py-1.5 px-1 rounded-lg text-[11px] font-extrabold text-slate-400 hover:text-white transition cursor-pointer">
+                        Ángulo (F)
+                    </button>
+                    <button id="subtab-pipe" type="button" class="py-1.5 px-1 rounded-lg text-[11px] font-extrabold text-slate-400 hover:text-white transition cursor-pointer">
+                        Tubería
+                    </button>
+                </div>
+
+                <div id="asme-buttons-grid" class="grid grid-cols-2 gap-1.5"></div>
+            </div>
+
+            <!-- MODO 2: NORMA EUROPEA UNE-EN ISO 6947 -->
+            <div id="panel-iso" class="hidden flex-col gap-2">
+                <div class="grid grid-cols-2 gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
+                    <button id="isotab-wheel" type="button" class="py-1 px-2 rounded-lg text-[11px] font-extrabold bg-sky-500/20 text-sky-300 border border-sky-500/40 transition cursor-pointer">
+                        Chapas (Rueda)
+                    </button>
+                    <button id="isotab-pipe" type="button" class="py-1 px-2 rounded-lg text-[11px] font-extrabold text-slate-400 hover:text-white transition cursor-pointer">
+                        Tubería
+                    </button>
+                </div>
+
+                <!-- Rueda UNE-EN ISO 6947 (PA arriba 12h, sentido horario + flechas al centro) -->
+                <div id="iso-wheel-container" class="flex flex-col items-center">
+                    <div class="relative w-full max-w-[215px] aspect-square flex items-center justify-center">
+                        <svg viewBox="0 0 250 250" class="w-full h-full select-none">
+                            <defs>
+                                <marker id="arrow-dim" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto">
+                                    <path d="M 0 1 L 9 5 L 0 9 z" fill="#64748b"/>
+                                </marker>
+                                <marker id="arrow-active" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                                    <path d="M 0 1 L 9 5 L 0 9 z" fill="#f59e0b"/>
+                                </marker>
+                            </defs>
+
+                            <circle cx="125" cy="125" r="76" fill="none" stroke="#1e293b" stroke-width="10" />
+                            <circle cx="125" cy="125" r="76" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.45" />
+
+                            <path d="M 145 20 A 105 105 0 0 1 220 75" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow-dim)" />
+                            <text x="196" y="36" fill="#64748b" font-size="7.5" font-weight="800">HORARIO</text>
+
+                            <circle cx="125" cy="125" r="24" fill="#0f172a" stroke="#475569" stroke-width="1.5" />
+                            <text x="125" y="123" text-anchor="middle" fill="#94a3b8" font-size="7.5" font-weight="800">PIEZA</text>
+                            <text x="125" y="133" text-anchor="middle" fill="#38bdf8" font-size="7" font-weight="800">ISO 6947</text>
+
+                            <!-- Flechas radiales apuntando hacia el centro -->
+                            <line id="iso-arr-pa" x1="125" y1="68" x2="125" y2="94" stroke="#64748b" stroke-width="2.5" marker-end="url(#arrow-dim)" />
+                            <line id="iso-arr-pb" x1="166" y1="84" x2="147" y2="103" stroke="#64748b" stroke-width="2.5" marker-end="url(#arrow-dim)" />
+                            <line id="iso-arr-pc" x1="182" y1="125" x2="156" y2="125" stroke="#64748b" stroke-width="2.5" marker-end="url(#arrow-dim)" />
+                            <line id="iso-arr-pd" x1="166" y1="166" x2="147" y2="147" stroke="#64748b" stroke-width="2.5" marker-end="url(#arrow-dim)" />
+                            <line id="iso-arr-pe" x1="125" y1="182" x2="125" y2="156" stroke="#64748b" stroke-width="2.5" marker-end="url(#arrow-dim)" />
+
+                            <!-- PA (Arriba 12h - 0°) -->
+                            <g class="iso-node" data-isoid="pa_1g">
+                                <circle id="iso-node-pa" cx="125" cy="45" r="20" fill="#0f172a" stroke="#38bdf8" stroke-width="2.5" />
+                                <text x="125" y="49" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="900">PA</text>
+                            </g>
+
+                            <!-- PB (1:30h - 45°) -->
+                            <g class="iso-node" data-isoid="pb_2f">
+                                <circle id="iso-node-pb" cx="182" cy="68" r="19" fill="#0f172a" stroke="#38bdf8" stroke-width="2" />
+                                <text x="182" y="72" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="900">PB</text>
+                            </g>
+
+                            <!-- PC (3:00h - 90°) -->
+                            <g class="iso-node" data-isoid="pc_2g">
+                                <circle id="iso-node-pc" cx="205" cy="125" r="19" fill="#0f172a" stroke="#38bdf8" stroke-width="2" />
+                                <text x="205" y="129" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="900">PC</text>
+                            </g>
+
+                            <!-- PD (4:30h - 135°) -->
+                            <g class="iso-node" data-isoid="pd_4f">
+                                <circle id="iso-node-pd" cx="182" cy="182" r="19" fill="#0f172a" stroke="#38bdf8" stroke-width="2" />
+                                <text x="182" y="186" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="900">PD</text>
+                            </g>
+
+                            <!-- PE (Abajo 6:00h - 180°) -->
+                            <g class="iso-node" data-isoid="pe_4g">
+                                <circle id="iso-node-pe" cx="125" cy="205" r="20" fill="#0f172a" stroke="#38bdf8" stroke-width="2.5" />
+                                <text x="125" y="209" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="900">PE</text>
+                            </g>
+
+                            <!-- PF Vertical Ascendente -->
+                            <g class="iso-node" data-isoid="pf_3g">
+                                <rect id="iso-node-pf" x="14" y="72" width="44" height="44" rx="10" fill="#0f172a" stroke="#34d399" stroke-width="2" />
+                                <text x="36" y="93" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="900">PF</text>
+                                <text x="36" y="108" text-anchor="middle" fill="#34d399" font-size="11" font-weight="900">↑</text>
+                            </g>
+
+                            <!-- PG Vertical Descendente -->
+                            <g class="iso-node" data-isoid="pg_3g">
+                                <rect id="iso-node-pg" x="14" y="132" width="44" height="44" rx="10" fill="#0f172a" stroke="#fb7185" stroke-width="2" />
+                                <text x="36" y="153" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="900">PG</text>
+                                <text x="36" y="168" text-anchor="middle" fill="#fb7185" font-size="11" font-weight="900">↓</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- Selector de variante A Tope / Ángulo para PA, PF y PG -->
+                    <div id="iso-variant-bar" class="w-full hidden grid-cols-2 gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800 mt-1"></div>
+                </div>
+
+                <!-- Lista ISO de Tubería -->
+                <div id="iso-pipe-container" class="hidden flex-col gap-1.5"></div>
+            </div>
+
+            <!-- MODO 3: TIPOS DE JUNTA -->
+            <div id="panel-joints" class="hidden flex-col gap-2">
+                <!-- Botón exclusivo para activar/desactivar soldadura y electrodo en Tipos de Junta -->
+                <button id="btn-toggle-joint-weld" type="button" class="sticky top-0 z-20 shrink-0 w-full py-2.5 px-3 rounded-xl font-extrabold text-xs flex items-center justify-between transition border cursor-pointer bg-slate-950/95 border-slate-700 text-slate-300 hover:bg-slate-800 shadow-lg">
+                    <span class="flex items-center gap-1.5">
+                        <span id="joint-weld-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
+                        <span>Simulación de soldeo</span>
+                    </span>
+                    <span id="joint-weld-status" class="text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-400 font-black uppercase">Oculta</span>
+                </button>
+
+                <div class="shrink-0 bg-emerald-950/40 border border-emerald-500/30 rounded-xl px-2.5 py-1.5 text-[11px] text-emerald-200 font-semibold leading-tight">
+                    💡 En <b>Meta Quest 3</b>: usa el botón de agarre lateral (<i>Grip</i>) de 1 mando para mover la junta, o de <b>ambos mandos a la vez</b> para escalarla.
+                </div>
+                <div id="joints-buttons-list" class="flex flex-col gap-1.5"></div>
+            </div>
+        </aside>
+
+        <!-- BARRA INFERIOR COMPACTA -->
+        <section class="glass-panel self-center sm:self-end rounded-2xl px-3 py-1.5 pointer-events-auto shadow-2xl flex items-center gap-3 border border-slate-700/80">
+            <div>
+                <span id="badge-type" class="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    Chapas a Tope
+                </span>
+                <h2 id="info-common-name" class="text-xs sm:text-sm font-black text-white leading-tight mt-0.5">
+                    Plana
+                </h2>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+                <div id="box-asme" class="bg-slate-900/95 border-2 border-amber-500 rounded-xl px-2 py-0.5 text-center min-w-[54px]">
+                    <span id="label-box-asme" class="block text-[8px] font-extrabold uppercase text-amber-400">ASME</span>
+                    <span id="info-aws-code" class="text-sm sm:text-base font-black text-white leading-none">1G</span>
+                </div>
+                <div id="box-iso" class="bg-slate-900/95 border border-slate-700 rounded-xl px-2 py-0.5 text-center min-w-[54px]">
+                    <span id="label-box-iso" class="block text-[8px] font-extrabold uppercase text-sky-400">ISO 6947</span>
+                    <span id="info-iso-code" class="text-sm sm:text-base font-black text-sky-300 leading-none">PA</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- PIE DE PÁGINA: AUTORÍA Y LICENCIA CREATIVE COMMONS -->
+    <footer class="ui-layer w-full px-2.5 pb-1.5 flex justify-center pointer-events-none">
+        <div class="glass-panel px-3 py-1 rounded-xl pointer-events-auto border border-slate-700/70 shadow-lg max-w-5xl text-center">
+            <p class="text-[9px] sm:text-[10px] text-slate-300 leading-tight">
+                <span class="font-bold text-sky-300">CC BY-NC-ND 4.0</span>
+                <span class="text-slate-400 font-medium"> (Licencia Creative Commons: Atribución - NoComercial - SinDerivadas 4.0 Internacional)</span>
+                <span class="hidden md:inline text-slate-500 mx-1">•</span>
+                <span class="block md:inline text-[8.5px] sm:text-[9.5px] text-slate-400">
+                    Usted es libre de compartir y distribuir este material en cualquier medio siempre que reconozca los créditos a <strong class="text-amber-300">José Manuel García Agudín</strong>, no haga uso comercial y no realice modificaciones o adaptaciones de la obra.
+                </span>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Toast de avisos -->
+    <div id="xr-toast" class="fixed bottom-16 left-1/2 -translate-x-1/2 z-50 hidden glass-panel px-4 py-2 rounded-xl border border-amber-400/50 text-amber-200 text-xs font-bold shadow-2xl"></div>
+
+    <script>
+        // ============================================================================
+        // CONFIGURACIÓN DE ESCENA 3D Y DATOS DE POSICIONES
+        // ============================================================================
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x090d16);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 50);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.xr.enabled = true;
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.35);
+        dirLight.position.set(3, 5, 4);
+        scene.add(dirLight);
+
+        const fillLight = new THREE.DirectionalLight(0x94a3b8, 0.7);
+        fillLight.position.set(-4, -2, -3);
+        scene.add(fillLight);
+
+        const stationGroup = new THREE.Group();
+        scene.add(stationGroup);
+
+        const workpieceGroup = new THREE.Group();
+        stationGroup.add(workpieceGroup);
+
+        const camOrbit = { theta: 0.52, phi: 1.15, radius: 0.62, isDragging: false, prevX: 0, prevY: 0 };
+
+        function updateDesktopCamera() {
+            const x = camOrbit.radius * Math.sin(camOrbit.phi) * Math.sin(camOrbit.theta);
+            const y = camOrbit.radius * Math.cos(camOrbit.phi);
+            const z = camOrbit.radius * Math.sin(camOrbit.phi) * Math.cos(camOrbit.theta);
+            camera.position.set(x, y, z);
+            camera.lookAt(0, 0, 0);
+        }
+        updateDesktopCamera();
+
+        // ============================================================================
+        // BASE DE DATOS DE POSICIONES Y TIPOS DE JUNTA (GRADO MEDIO - SMAW 111)
+        // ============================================================================
+        const WELDING_POSITIONS = [
+            // --- UNIÓN A TOPE EN CHAPAS (G) ---
+            {
+                id: 'pa_1g',
+                asmeGroup: 'G',
+                aws: '1G',
+                iso: 'PA',
+                commonName: 'Plana (Sobremesa)',
+                categoryLabel: 'Chapas a Tope',
+                geometryType: 'butt_plate',
+                plateRot: { x: 0, y: 0, z: 0 },
+                weldPath: { type: 'line', start: [-0.11, 0.002, 0], end: [0.11, 0.002, 0] },
+                electrodeVec: new THREE.Vector3(-0.32, 0.92, 0.22).normalize(),
+                weaveMode: 'none'
+            },
+            {
+                id: 'pc_2g',
+                asmeGroup: 'G',
+                aws: '2G',
+                iso: 'PC',
+                commonName: 'Horizontal (Cornisa)',
+                categoryLabel: 'Chapas a Tope',
+                geometryType: 'butt_plate',
+                plateRot: { x: Math.PI / 2, y: 0, z: 0 },
+                weldPath: { type: 'line', start: [-0.11, 0, 0.002], end: [0.11, 0, 0.002] },
+                electrodeVec: new THREE.Vector3(-0.30, 0.25, 0.92).normalize(),
+                weaveMode: 'none'
+            },
+            {
+                id: 'pf_3g',
+                asmeGroup: 'G',
+                aws: '3G (Asc.)',
+                iso: 'PF ↑',
+                commonName: 'Vertical Ascendente',
+                categoryLabel: 'Chapas a Tope',
+                geometryType: 'butt_plate_vertical',
+                plateRot: { x: 0, y: 0, z: 0 },
+                weldPath: { type: 'line', start: [0, -0.11, 0.002], end: [0, 0.11, 0.002] },
+                electrodeVec: new THREE.Vector3(0, -0.28, 0.96).normalize(),
+                weaveMode: 'vertical_up'
+            },
+            {
+                id: 'pg_3g',
+                asmeGroup: 'G',
+                aws: '3G (Desc.)',
+                iso: 'PG ↓',
+                commonName: 'Vertical Descendente',
+                categoryLabel: 'Chapas a Tope',
+                geometryType: 'butt_plate_vertical',
+                plateRot: { x: 0, y: 0, z: 0 },
+                weldPath: { type: 'line', start: [0, 0.11, 0.002], end: [0, -0.11, 0.002] },
+                electrodeVec: new THREE.Vector3(0, 0.35, 0.94).normalize(),
+                weaveMode: 'none'
+            },
+            {
+                id: 'pe_4g',
+                asmeGroup: 'G',
+                aws: '4G',
+                iso: 'PE',
+                commonName: 'Bajo Techo (Sobrecabeza)',
+                categoryLabel: 'Chapas a Tope',
+                geometryType: 'butt_plate',
+                plateRot: { x: Math.PI, y: 0, z: 0 },
+                weldPath: { type: 'line', start: [-0.11, 0.002, 0], end: [0.11, 0.002, 0] },
+                electrodeVec: new THREE.Vector3(-0.30, -0.92, 0.25).normalize(),
+                weaveMode: 'none'
+            },
+
+            // --- UNIÓN EN ÁNGULO INTERIOR (F) ---
+            {
+                id: 'pa_1f',
+                asmeGroup: 'F',
+                aws: '1F',
+                iso: 'PA',
+                commonName: 'Plana en Ángulo (Cuna 45°)',
+                categoryLabel: 'Chapas en Ángulo (T)',
+                geometryType: 'fillet_t',
+                plateRot: { x: -Math.PI / 4, y: 0, z: 0 },
+                weldPath: { type: 'line', start: [-0.11, 0.012, 0.012], end: [0.11, 0.012, 0.012] },
+                electrodeVec: new THREE.Vector3(-0.30, 0.95, 0.10).normalize(),
+                weaveMode: 'none'
+            },
+            {
+                id: 'pb_2f',
+                asmeGroup: 'F',
+                aws: '2F',
+                iso: 'PB',
+                commonName: 'Horizontal en Ángulo (Rincón)',
+                categoryLabel: 'Chapas en Ángulo (T)',
+                geometryType: 'fillet_t',
+                plateRot: { x: 0, y: 0, z: 0 },
+                weldPath: { type: 'line', start: [-0.11, 0.012, 0.012], end: [0.11, 0.012, 0.012] },
+                electrodeVec: new THREE.Vector3(-0.30, 0.65, 0.70).normalize(),
+                weaveMode: 'none'
+            },
+            {
+                id: 'pf_3f',
+                asmeGroup: 'F',
+                aws: '3F (Asc.)',
+                iso: 'PF ↑',
+                commonName: 'Vertical Ascendente en Ángulo',
+                categoryLabel: 'Chapas en Ángulo (T)',
+                geometryType: 'fillet_t',
+                plateRot: { x: 0, y: Math.PI / 4, z: Math.PI / 2 },
+                weldPath: { type: 'line', start: [-0.11, 0.012, 0.012], end: [0.11, 0.012, 0.012] },
+                electrodeVec: new THREE.Vector3(0, -0.28, 0.96).normalize(),
+                weaveMode: 'vertical_up_fillet'
+            },
+            {
+                id: 'pg_3f',
+                asmeGroup: 'F',
+                aws: '3F (Desc.)',
+                iso: 'PG ↓',
+                commonName: 'Vertical Descendente en Ángulo',
+                categoryLabel: 'Chapas en Ángulo (T)',
+                geometryType: 'fillet_t',
+                plateRot: { x: 0, y: Math.PI / 4, z: Math.PI / 2 },
+                weldPath: { type: 'line', start: [0.11, 0.012, 0.012], end: [-0.11, 0.012, 0.012] },
+                electrodeVec: new THREE.Vector3(0, 0.35, 0.94).normalize(),
+                weaveMode: 'none'
+            },
+            {
+                id: 'pd_4f',
+                asmeGroup: 'F',
+                aws: '4F',
+                iso: 'PD',
+                commonName: 'Bajo Techo en Ángulo (Rincón)',
+                categoryLabel: 'Chapas en Ángulo (T)',
+                geometryType: 'fillet_t',
+                plateRot: { x: Math.PI / 2, y: 0, z: 0 },
+                weldPath: { type: 'line', start: [-0.11, 0.012, 0.012], end: [0.11, 0.012, 0.012] },
+                electrodeVec: new THREE.Vector3(-0.30, -0.65, 0.70).normalize(),
+                weaveMode: 'none'
+            },
+
+            // --- TUBERÍA ---
+            {
+                id: 'pipe_1g',
+                asmeGroup: 'PIPE',
+                aws: '1G (Rot.)',
+                iso: 'PA (Tubo rot.)',
+                commonName: 'Tubería Rotada en Plano',
+                categoryLabel: 'Tubería a Tope',
+                geometryType: 'pipe_butt',
+                plateRot: { x: 0, y: 0, z: Math.PI / 2 },
+                weldPath: { type: 'pipe_1g_rot', radius: 0.072 },
+                electrodeVec: new THREE.Vector3(-0.22, 0.95, 0.22).normalize(),
+                weaveMode: 'pipe_1g'
+            },
+            {
+                id: 'pipe_2g',
+                asmeGroup: 'PIPE',
+                aws: '2G (Tubo)',
+                iso: 'PC (Tubo)',
+                commonName: 'Tubería Fija Vertical (Cornisa)',
+                categoryLabel: 'Tubería a Tope',
+                geometryType: 'pipe_butt',
+                plateRot: { x: 0, y: 0, z: 0 },
+                weldPath: { type: 'circle', radius: 0.072, startAngle: -Math.PI / 2.2, endAngle: Math.PI / 2.2 },
+                electrodeVec: new THREE.Vector3(0.15, 0.22, 0.96).normalize(),
+                weaveMode: 'none'
+            },
+            {
+                id: 'pipe_5f',
+                asmeGroup: 'PIPE',
+                aws: '5F',
+                iso: 'PH / PJ (Ángulo)',
+                commonName: 'Tubo-Chapa Fijo Horizontal',
+                categoryLabel: 'Tubería en Ángulo',
+                geometryType: 'pipe_fillet',
+                plateRot: { x: 0, y: 0, z: 0 },
+                weldPath: { type: 'circle_z', radius: 0.068, startAngle: Math.PI, endAngle: 0 },
+                electrodeVec: new THREE.Vector3(0.55, -0.25, 0.78).normalize(),
+                weaveMode: 'none'
+            },
+            {
+                id: 'pipe_5g_up',
+                asmeGroup: 'PIPE',
+                aws: '5G (Asc.)',
+                iso: 'PH',
+                commonName: 'Tubería Fija Horizontal Ascendente',
+                categoryLabel: 'Tubería a Tope',
+                geometryType: 'pipe_butt',
+                plateRot: { x: 0, y: 0, z: Math.PI / 2 },
+                weldPath: { type: 'circle', radius: 0.072, startAngle: -Math.PI / 2, endAngle: Math.PI / 2 },
+                electrodeVec: new THREE.Vector3(0.25, 0.10, 0.96).normalize(),
+                weaveMode: 'none'
+            },
+            {
+                id: 'pipe_5g_down',
+                asmeGroup: 'PIPE',
+                aws: '5G (Desc.)',
+                iso: 'PJ',
+                commonName: 'Tubería Fija Horizontal Descendente',
+                categoryLabel: 'Tubería a Tope',
+                geometryType: 'pipe_butt',
+                plateRot: { x: 0, y: 0, z: Math.PI / 2 },
+                weldPath: { type: 'circle', radius: 0.072, startAngle: Math.PI / 2, endAngle: -Math.PI / 2 },
+                electrodeVec: new THREE.Vector3(0.25, 0.30, 0.92).normalize(),
+                weaveMode: 'none'
+            },
+            {
+                id: 'pipe_6g_up',
+                asmeGroup: 'PIPE',
+                aws: '6G (Asc.)',
+                iso: 'H-L045 (PH45)',
+                commonName: 'Tubería Fija Inclinada 45° (Asc.)',
+                categoryLabel: 'Tubería a Tope 45°',
+                geometryType: 'pipe_butt',
+                plateRot: { x: 0, y: 0, z: Math.PI / 4 },
+                weldPath: { type: 'circle', radius: 0.072, startAngle: -Math.PI / 2, endAngle: Math.PI / 2 },
+                electrodeVec: new THREE.Vector3(0.35, 0.25, 0.90).normalize(),
+                weaveMode: 'none'
+            },
+            {
+                id: 'pipe_6g_down',
+                asmeGroup: 'PIPE',
+                aws: '6G (Desc.)',
+                iso: 'J-L045 (PJ45)',
+                commonName: 'Tubería Fija Inclinada 45° (Desc.)',
+                categoryLabel: 'Tubería a Tope 45°',
+                geometryType: 'pipe_butt',
+                plateRot: { x: 0, y: 0, z: Math.PI / 4 },
+                weldPath: { type: 'circle', radius: 0.072, startAngle: Math.PI / 2, endAngle: -Math.PI / 2 },
+                electrodeVec: new THREE.Vector3(0.35, 0.40, 0.85).normalize(),
+                weaveMode: 'none'
+            },
+
+            // --- TIPOS DE JUNTA (GEOMETRÍA DE UNIÓN) ---
+            {
+                id: 'joint_butt',
+                asmeGroup: 'JOINTS',
+                aws: 'A Tope',
+                iso: 'Con bisel en V / Sin preparación',
+                commonName: 'Soldadura a Tope',
+                categoryLabel: 'Geometría de Junta',
+                geometryType: 'butt_joint_pair',
+                plateRot: { x: 0, y: 0, z: 0 },
+                weldPath: { type: 'line', start: [-0.09, 0.002, 0], end: [0.09, 0.002, 0] },
+                electrodeVec: new THREE.Vector3(-0.32, 0.92, 0.22).normalize(),
+                weaveMode: 'none'
+            },
+            {
+                id: 'joint_fillet',
+                asmeGroup: 'JOINTS',
+                aws: 'En Ángulo',
+                iso: 'Unión en T (Rincón)',
+                commonName: 'Soldadura en Ángulo',
+                categoryLabel: 'Geometría de Junta',
+                geometryType: 'fillet_t',
+                plateRot: { x: 0, y: 0, z: 0 },
+                weldPath: { type: 'line', start: [-0.11, 0.012, 0.012], end: [0.11, 0.012, 0.012] },
+                electrodeVec: new THREE.Vector3(-0.30, 0.65, 0.70).normalize(),
+                weaveMode: 'none'
+            },
+            {
+                id: 'joint_lap',
+                asmeGroup: 'JOINTS',
+                aws: 'A Solape',
+                iso: 'Chapas Solapadas',
+                commonName: 'Soldadura a Solape',
+                categoryLabel: 'Geometría de Junta',
+                geometryType: 'lap_joint',
+                plateRot: { x: 0, y: 0, z: 0 },
+                weldPath: { type: 'line', start: [-0.11, 0.003, 0.028], end: [0.11, 0.003, 0.028] },
+                electrodeVec: new THREE.Vector3(-0.28, 0.68, 0.68).normalize(),
+                weaveMode: 'none'
+            },
+            {
+                id: 'joint_plug',
+                asmeGroup: 'JOINTS',
+                aws: 'De Tapón',
+                iso: 'Tapón Circular y Ojal',
+                commonName: 'Soldadura de Tapón',
+                categoryLabel: 'Geometría de Junta',
+                geometryType: 'plug_joint',
+                plateRot: { x: 0, y: 0, z: 0 },
+                weldPath: { type: 'plug_spiral', center: [0, 0.003, 0], maxRadius: 0.016 },
+                electrodeVec: new THREE.Vector3(-0.20, 0.95, 0.22).normalize(),
+                weaveMode: 'none'
+            },
+            {
+                id: 'joint_surfacing',
+                asmeGroup: 'JOINTS',
+                aws: 'De Recargue',
+                iso: 'Cordones Solapados',
+                commonName: 'Soldadura de Recargue',
+                categoryLabel: 'Geometría de Junta',
+                geometryType: 'surfacing_joint',
+                plateRot: { x: 0, y: 0, z: 0 },
+                weldPath: { type: 'line', start: [-0.11, 0.013, 0.030], end: [0.11, 0.013, 0.030] },
+                electrodeVec: new THREE.Vector3(-0.30, 0.92, 0.22).normalize(),
+                weaveMode: 'surfacing'
+            }
+        ];
+
+        const state = {
+            normMode: 'ASME',
+            asmeTab: 'G',
+            isoTab: 'WHEEL',
+            currentPos: WELDING_POSITIONS[0],
+            isPlaying: true,
+            progress: 0,
+            workpieceScale: 1.0,
+            showWeldInJoints: false,
+            soundEnabled: true,
+            soundVolume: 0.45
+        };
+
+        // ============================================================================
+        // SINTETIZADOR DE SONIDO DE SOLDADURA SMAW (111) - CHISPORROTEO ("FRITO")
+        // ============================================================================
+        let audioCtx = null;
+        let weldMasterGain = null;
+        let crackleTimer = null;
+
+        function initWeldingAudio() {
+            if (audioCtx) {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                return;
+            }
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextClass) return;
+
+            audioCtx = new AudioContextClass();
+            weldMasterGain = audioCtx.createGain();
+            weldMasterGain.gain.value = 0;
+            weldMasterGain.connect(audioCtx.destination);
+
+            // 1. Ruido blanco/rosa continuo filtrado (base del arco y gas del revestimiento)
+            const bufferSize = audioCtx.sampleRate * 2;
+            const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const output = noiseBuffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                let w = Math.random() * 2 - 1;
+                // Picos aleatorios de transferencia globular / cortocircuito en SMAW
+                if (Math.random() < 0.045) {
+                    w *= 3.2;
+                }
+                output[i] = Math.max(-1, Math.min(1, w));
+            }
+
+            const whiteNoise = audioCtx.createBufferSource();
+            whiteNoise.buffer = noiseBuffer;
+            whiteNoise.loop = true;
+
+            const bandpass = audioCtx.createBiquadFilter();
+            bandpass.type = 'bandpass';
+            bandpass.frequency.value = 2400;
+            bandpass.Q.value = 0.85;
+
+            const highshelf = audioCtx.createBiquadFilter();
+            highshelf.type = 'highshelf';
+            highshelf.frequency.value = 3800;
+            highshelf.gain.value = 8;
+
+            const noiseGain = audioCtx.createGain();
+            noiseGain.gain.value = 0.65;
+
+            whiteNoise.connect(bandpass);
+            bandpass.connect(highshelf);
+            highshelf.connect(noiseGain);
+            noiseGain.connect(weldMasterGain);
+            whiteNoise.start(0);
+
+            // 2. Zumbido grave eléctrico del equipo / arco (100 Hz diente de sierra suave)
+            const humOsc = audioCtx.createOscillator();
+            humOsc.type = 'sawtooth';
+            humOsc.frequency.value = 100;
+
+            const humFilter = audioCtx.createBiquadFilter();
+            humFilter.type = 'lowpass';
+            humFilter.frequency.value = 240;
+
+            const humGain = audioCtx.createGain();
+            humGain.gain.value = 0.14;
+
+            humOsc.connect(humFilter);
+            humFilter.connect(humGain);
+            humGain.connect(weldMasterGain);
+            humOsc.start(0);
+
+            // 3. Modulación rápida e irregular de chisporroteo ("frito" del electrodo)
+            crackleTimer = setInterval(() => {
+                if (!audioCtx || audioCtx.state !== 'running') return;
+                const isWeldingNow = state.isPlaying && ((state.normMode !== 'JOINTS') || state.showWeldInJoints);
+                if (!state.soundEnabled || !isWeldingNow) return;
+
+                const now = audioCtx.currentTime;
+                const burst = 0.55 + Math.random() * 0.75;
+                noiseGain.gain.setTargetAtTime(burst * 0.7, now, 0.008);
+                bandpass.frequency.setTargetAtTime(1700 + Math.random() * 2200, now, 0.01);
+            }, 35);
+        }
+
+        function syncWeldingSound() {
+            if (!audioCtx || !weldMasterGain) return;
+            const isWeldingNow = state.isPlaying && ((state.normMode !== 'JOINTS') || state.showWeldInJoints);
+            const targetGain = (state.soundEnabled && isWeldingNow) ? state.soundVolume * 0.35 : 0;
+            weldMasterGain.gain.setTargetAtTime(targetGain, audioCtx.currentTime, 0.04);
+        }
+
+        function updateSoundUI() {
+            const btn = document.getElementById('btn-toggle-sound');
+            const slider = document.getElementById('sound-volume');
+            if (!btn || !slider) return;
+            if (!state.soundEnabled || state.soundVolume === 0) {
+                btn.textContent = '🔇';
+                btn.className = 'w-6 h-6 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 font-bold text-xs cursor-pointer flex items-center justify-center';
+            } else {
+                btn.textContent = '🔊';
+                btn.className = 'w-6 h-6 rounded-lg text-amber-400 hover:text-white hover:bg-slate-800 font-bold text-xs cursor-pointer flex items-center justify-center';
+            }
+        }
+
+        document.getElementById('btn-toggle-sound').addEventListener('click', () => {
+            initWeldingAudio();
+            state.soundEnabled = !state.soundEnabled;
+            updateSoundUI();
+            syncWeldingSound();
+        });
+
+        document.getElementById('sound-volume').addEventListener('input', e => {
+            initWeldingAudio();
+            state.soundVolume = parseInt(e.target.value, 10) / 100;
+            if (state.soundVolume > 0 && !state.soundEnabled) {
+                state.soundEnabled = true;
+            }
+            updateSoundUI();
+            syncWeldingSound();
+        });
+
+        // Desbloquear contexto de audio al interactuar con cualquier botón de posición o pestaña
+        window.addEventListener('pointerdown', () => {
+            if (state.soundEnabled) {
+                initWeldingAudio();
+                syncWeldingSound();
+            }
+        }, { once: false, passive: true });
+
+        // ============================================================================
+        // MATERIALES DE ACERO AL CARBONO (Limpio y claro, estilo tubería)
+        // ============================================================================
+        const steelMat = new THREE.MeshStandardMaterial({
+            color: 0xa8b8cc,
+            roughness: 0.45,
+            metalness: 0.58
+        });
+
+        const bevelMat = new THREE.MeshStandardMaterial({
+            color: 0xdbeafe,
+            roughness: 0.22,
+            metalness: 0.78,
+            side: THREE.DoubleSide
+        });
+
+        const innerPipeMat = new THREE.MeshStandardMaterial({
+            color: 0x64748b,
+            roughness: 0.60,
+            metalness: 0.50,
+            side: THREE.DoubleSide
+        });
+
+        const weldBeadMat = new THREE.MeshStandardMaterial({
+            color: 0xcbd5e1,
+            roughness: 0.35,
+            metalness: 0.75
+        });
+
+        let rippleMeshes = [];
+        let staticJointBeads = [];
+        let draggableJointPieces = [];
+        let pipeRotationIndicators = [];
+        let directionArrowGroup = new THREE.Group();
+        stationGroup.add(directionArrowGroup);
+        let rotatingPipeGroup = null;
+
+        // ============================================================================
+        // ETIQUETAS 3D ATRACTIVAS PARA IDENTIFICAR LAS PIEZAS EN "TIPOS DE JUNTA"
+        // ============================================================================
+        function createJointLabelSprite(badgeText, titleText, accentHex = '#10b981') {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 148;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+            ctx.strokeStyle = accentHex;
+            ctx.lineWidth = 4;
+
+            const x = 8, y = 8, w = 496, h = 112, r = 22;
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(242, 120);
+            ctx.lineTo(256, 140);
+            ctx.lineTo(270, 120);
+            ctx.closePath();
+            ctx.fillStyle = accentHex;
+            ctx.fill();
+
+            ctx.fillStyle = 'rgba(16, 185, 129, 0.22)';
+            ctx.beginPath();
+            ctx.roundRect ? ctx.roundRect(24, 22, 170, 30, 8) : ctx.rect(24, 22, 170, 30);
+            ctx.fill();
+
+            ctx.fillStyle = '#6ee7b7';
+            ctx.font = '900 18px Inter, Arial, sans-serif';
+            ctx.fillText(badgeText.toUpperCase(), 36, 43);
+
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '700 15px Inter, Arial, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText('✋ Movible', 484, 42);
+
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '900 26px Inter, Arial, sans-serif';
+            ctx.fillText(titleText, 26, 94);
+
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.needsUpdate = true;
+            const mat = new THREE.SpriteMaterial({
+                map: tex,
+                transparent: true,
+                depthTest: false
+            });
+            const sprite = new THREE.Sprite(mat);
+            sprite.scale.set(0.22, 0.064, 1);
+            sprite.renderOrder = 999;
+            return sprite;
+        }
+
+        // ============================================================================
+        // GEOMETRÍAS 3D DE PROBETAS Y TIPOS DE JUNTA
+        // ============================================================================
+        function createBeveledButtPlates(isVertical) {
+            const group = new THREE.Group();
+            const length = 0.28;
+            const plateWidth = 0.085;
+            const thickness = 0.014;
+            const rootFace = 0.003;
+            const bevelHeight = thickness - rootFace;
+            const bevelRun = bevelHeight * Math.tan(Math.PI / 6);
+            const rootGap = 0.0028;
+
+            const rightShape = new THREE.Shape();
+            const z0 = rootGap / 2;
+            rightShape.moveTo(z0, -thickness / 2);
+            rightShape.lineTo(z0 + plateWidth, -thickness / 2);
+            rightShape.lineTo(z0 + plateWidth, thickness / 2);
+            rightShape.lineTo(z0 + bevelRun, thickness / 2);
+            rightShape.lineTo(z0, -thickness / 2 + rootFace);
+            rightShape.closePath();
+
+            const leftShape = new THREE.Shape();
+            leftShape.moveTo(-z0, -thickness / 2);
+            leftShape.lineTo(-z0, -thickness / 2 + rootFace);
+            leftShape.lineTo(-z0 - bevelRun, thickness / 2);
+            leftShape.lineTo(-z0 - plateWidth, thickness / 2);
+            leftShape.lineTo(-z0 - plateWidth, -thickness / 2);
+            leftShape.closePath();
+
+            const extrudeOpts = { depth: length, bevelEnabled: false };
+
+            const geoA = new THREE.ExtrudeGeometry(rightShape, extrudeOpts);
+            const geoB = new THREE.ExtrudeGeometry(leftShape, extrudeOpts);
+            geoA.translate(0, 0, -length / 2);
+            geoB.translate(0, 0, -length / 2);
+
+            const meshA = new THREE.Mesh(geoA, steelMat);
+            const meshB = new THREE.Mesh(geoB, steelMat);
+            meshA.rotation.y = Math.PI / 2;
+            meshB.rotation.y = Math.PI / 2;
+            group.add(meshA, meshB);
+
+            if (isVertical) {
+                group.rotation.z = Math.PI / 2;
+                group.rotation.y = Math.PI / 2;
+            }
+
+            return group;
+        }
+
+        function createSquareButtPlates(length = 0.22, plateWidth = 0.075, thickness = 0.014) {
+            const group = new THREE.Group();
+            const rootGap = 0.003;
+            const zOffset = rootGap / 2 + plateWidth / 2;
+
+            const plateGeo = new THREE.BoxGeometry(length, thickness, plateWidth);
+            const meshA = new THREE.Mesh(plateGeo, steelMat);
+            meshA.position.set(0, 0, zOffset);
+
+            const meshB = new THREE.Mesh(plateGeo, steelMat);
+            meshB.position.set(0, 0, -zOffset);
+
+            group.add(meshA, meshB);
+            return group;
+        }
+
+        function createButtJointComparison() {
+            const group = new THREE.Group();
+
+            const vButtUnit = new THREE.Group();
+            vButtUnit.position.set(-0.135, 0, 0);
+            const vButt = createBeveledButtPlates(false);
+            vButt.scale.set(0.75, 1, 0.85);
+            vButtUnit.add(vButt);
+
+            const lblV = createJointLabelSprite('A TOPE', 'Con preparación de bordes (V)', '#10b981');
+            lblV.position.set(0, 0.068, 0);
+            vButtUnit.add(lblV);
+
+            const sqButtUnit = new THREE.Group();
+            sqButtUnit.position.set(0.135, 0, 0);
+            const sqButt = createSquareButtPlates(0.21, 0.072, 0.014);
+            sqButtUnit.add(sqButt);
+
+            const lblSq = createJointLabelSprite('A TOPE', 'Sin preparación de bordes', '#38bdf8');
+            lblSq.position.set(0, 0.068, 0);
+            sqButtUnit.add(lblSq);
+
+            for (let i = 0; i < 28; i++) {
+                const t = i / 27;
+                const rMesh = new THREE.Mesh(new THREE.SphereGeometry(0.0075, 10, 8), weldBeadMat);
+                rMesh.position.set(-0.095 + t * 0.19, 0.005, 0);
+                rMesh.scale.set(0.75, 0.55, 1.15);
+                sqButtUnit.add(rMesh);
+                staticJointBeads.push(rMesh);
+            }
+
+            group.add(vButtUnit, sqButtUnit);
+            draggableJointPieces.push(vButtUnit, sqButtUnit);
+
+            return { group, vButtUnit, sqButtUnit };
+        }
+
+        function createLapJointPlates() {
+            const group = new THREE.Group();
+            const len = 0.28;
+            const width = 0.105;
+            const thick = 0.012;
+            const overlap = 0.050;
+
+            const botPlate = new THREE.Mesh(new THREE.BoxGeometry(len, thick, width), steelMat);
+            botPlate.position.set(0, -thick / 2, (width - overlap) / 2);
+            group.add(botPlate);
+
+            const topPlate = new THREE.Mesh(new THREE.BoxGeometry(len, thick, width), steelMat);
+            topPlate.position.set(0, thick / 2, -(width - overlap) / 2);
+            group.add(topPlate);
+
+            const edgeStrip = new THREE.Mesh(new THREE.PlaneGeometry(len, thick), bevelMat);
+            edgeStrip.position.set(0, thick / 2, overlap / 2 + 0.0003);
+            group.add(edgeStrip);
+
+            const padStrip = new THREE.Mesh(new THREE.PlaneGeometry(len, 0.018), bevelMat);
+            padStrip.rotation.x = -Math.PI / 2;
+            padStrip.position.set(0, 0.0003, overlap / 2 + 0.009);
+            group.add(padStrip);
+
+            for (let i = 0; i < 32; i++) {
+                const t = i / 31;
+                const rMesh = new THREE.Mesh(new THREE.SphereGeometry(0.007, 10, 8), weldBeadMat);
+                rMesh.position.set(-0.12 + t * 0.24, -0.001, -overlap / 2 - 0.003);
+                rMesh.scale.set(0.75, 0.75, 1.15);
+                group.add(rMesh);
+                staticJointBeads.push(rMesh);
+            }
+
+            return group;
+        }
+
+        function createPlugWeldPlates() {
+            const group = new THREE.Group();
+            const len = 0.28;
+            const width = 0.14;
+            const thick = 0.012;
+
+            const botPlate = new THREE.Mesh(new THREE.BoxGeometry(len, thick, width), steelMat);
+            botPlate.position.set(0, -thick / 2, 0);
+            group.add(botPlate);
+
+            const topShape = new THREE.Shape();
+            topShape.moveTo(-len / 2, -width / 2);
+            topShape.lineTo(len / 2, -width / 2);
+            topShape.lineTo(len / 2, width / 2);
+            topShape.lineTo(-len / 2, width / 2);
+            topShape.closePath();
+
+            const holeLeft = new THREE.Path();
+            holeLeft.absarc(-0.078, 0, 0.022, 0, Math.PI * 2, true);
+            topShape.holes.push(holeLeft);
+
+            const holeCenter = new THREE.Path();
+            holeCenter.absarc(0, 0, 0.022, 0, Math.PI * 2, true);
+            topShape.holes.push(holeCenter);
+
+            const slotRight = new THREE.Path();
+            const sx = 0.078, sr = 0.016, sh = 0.018;
+            slotRight.moveTo(sx - sr, -sh);
+            slotRight.lineTo(sx - sr, sh);
+            slotRight.absarc(sx, sh, sr, Math.PI, 0, true);
+            slotRight.lineTo(sx + sr, -sh);
+            slotRight.absarc(sx, -sh, sr, 0, Math.PI, true);
+            topShape.holes.push(slotRight);
+
+            const topGeo = new THREE.ExtrudeGeometry(topShape, { depth: thick, bevelEnabled: false });
+            topGeo.rotateX(Math.PI / 2);
+            topGeo.translate(0, thick, 0);
+            const topMesh = new THREE.Mesh(topGeo, steelMat);
+            group.add(topMesh);
+
+            [-0.078, 0].forEach(xPos => {
+                const wallCyl = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.0218, 0.0218, thick, 32, 1, true),
+                    bevelMat
+                );
+                wallCyl.position.set(xPos, thick / 2, 0);
+                group.add(wallCyl);
+
+                const baseDisc = new THREE.Mesh(new THREE.CircleGeometry(0.022, 32), bevelMat);
+                baseDisc.rotation.x = -Math.PI / 2;
+                baseDisc.position.set(xPos, 0.0004, 0);
+                group.add(baseDisc);
+            });
+
+            const filledPlug = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.0215, 0.0215, thick * 0.92, 32),
+                weldBeadMat
+            );
+            filledPlug.position.set(-0.078, thick * 0.46, 0);
+            group.add(filledPlug);
+            staticJointBeads.push(filledPlug);
+
+            for (let i = 0; i < 16; i++) {
+                const r = (i / 15) * 0.017;
+                const ang = i * 1.1;
+                const b = new THREE.Mesh(new THREE.SphereGeometry(0.0065, 10, 8), weldBeadMat);
+                b.position.set(-0.078 + Math.cos(ang) * r, thick * 0.92, Math.sin(ang) * r);
+                b.scale.set(1.1, 0.45, 1.1);
+                group.add(b);
+                staticJointBeads.push(b);
+            }
+
+            return group;
+        }
+
+        function createSurfacingPlate() {
+            const group = new THREE.Group();
+            const len = 0.30;
+            const width = 0.18;
+            const thick = 0.020;
+
+            const baseBlock = new THREE.Mesh(new THREE.BoxGeometry(len, thick, width), steelMat);
+            baseBlock.position.set(0, 0, 0);
+            group.add(baseBlock);
+
+            const padSurface = new THREE.Mesh(new THREE.PlaneGeometry(0.26, 0.11), bevelMat);
+            padSurface.rotation.x = -Math.PI / 2;
+            padSurface.position.set(0, thick / 2 + 0.0003, 0);
+            group.add(padSurface);
+
+            const prevZ = [-0.030, -0.010, 0.010];
+            prevZ.forEach(zPos => {
+                for (let i = 0; i < 34; i++) {
+                    const t = i / 33;
+                    const rMesh = new THREE.Mesh(new THREE.SphereGeometry(0.0105, 12, 10), weldBeadMat);
+                    rMesh.position.set(-0.12 + t * 0.24, thick / 2 + 0.0025, zPos);
+                    rMesh.scale.set(0.85, 0.52, 1.35);
+                    group.add(rMesh);
+                    staticJointBeads.push(rMesh);
+                }
+            });
+
+            return group;
+        }
+
+        function createBeveledButtPipes() {
+            const group = new THREE.Group();
+            const outerR = 0.075;
+            const innerR = 0.056;
+            const pipeLen = 0.125;
+            const rootGap = 0.003;
+            const rootFace = 0.004;
+            const bevelHeight = (outerR - innerR - rootFace) * Math.tan(Math.PI / 6);
+            const halfGap = rootGap / 2;
+
+            const topPts = [
+                new THREE.Vector2(innerR, halfGap),
+                new THREE.Vector2(innerR + rootFace, halfGap),
+                new THREE.Vector2(innerR + rootFace, halfGap),
+                new THREE.Vector2(outerR, halfGap + bevelHeight),
+                new THREE.Vector2(outerR, halfGap + bevelHeight),
+                new THREE.Vector2(outerR, halfGap + pipeLen),
+                new THREE.Vector2(outerR, halfGap + pipeLen),
+                new THREE.Vector2(innerR, halfGap + pipeLen),
+                new THREE.Vector2(innerR, halfGap + pipeLen),
+                new THREE.Vector2(innerR, halfGap)
+            ];
+            const topPipe = new THREE.Mesh(new THREE.LatheGeometry(topPts, 48), steelMat);
+            group.add(topPipe);
+
+            const topBevelPts = [
+                new THREE.Vector2(innerR, halfGap - 0.0002),
+                new THREE.Vector2(innerR + rootFace, halfGap - 0.0002),
+                new THREE.Vector2(innerR + rootFace, halfGap - 0.0002),
+                new THREE.Vector2(outerR + 0.0002, halfGap + bevelHeight)
+            ];
+            const topBevel = new THREE.Mesh(new THREE.LatheGeometry(topBevelPts, 48), bevelMat);
+            group.add(topBevel);
+
+            const botPts = [
+                new THREE.Vector2(innerR, -halfGap - pipeLen),
+                new THREE.Vector2(outerR, -halfGap - pipeLen),
+                new THREE.Vector2(outerR, -halfGap - pipeLen),
+                new THREE.Vector2(outerR, -halfGap - bevelHeight),
+                new THREE.Vector2(outerR, -halfGap - bevelHeight),
+                new THREE.Vector2(innerR + rootFace, -halfGap),
+                new THREE.Vector2(innerR + rootFace, -halfGap),
+                new THREE.Vector2(innerR, -halfGap),
+                new THREE.Vector2(innerR, -halfGap),
+                new THREE.Vector2(innerR, -halfGap - pipeLen)
+            ];
+            const botPipe = new THREE.Mesh(new THREE.LatheGeometry(botPts, 48), steelMat);
+            group.add(botPipe);
+
+            const botBevelPts = [
+                new THREE.Vector2(outerR + 0.0002, -halfGap - bevelHeight),
+                new THREE.Vector2(innerR + rootFace, -halfGap + 0.0002),
+                new THREE.Vector2(innerR + rootFace, -halfGap + 0.0002),
+                new THREE.Vector2(innerR, -halfGap + 0.0002)
+            ];
+            const botBevel = new THREE.Mesh(new THREE.LatheGeometry(botBevelPts, 48), bevelMat);
+            group.add(botBevel);
+
+            const innerDarkTop = new THREE.Mesh(
+                new THREE.CylinderGeometry(innerR - 0.0005, innerR - 0.0005, pipeLen - 0.002, 40, 1, true),
+                innerPipeMat
+            );
+            innerDarkTop.position.y = halfGap + pipeLen / 2;
+            group.add(innerDarkTop);
+
+            const innerDarkBot = new THREE.Mesh(
+                new THREE.CylinderGeometry(innerR - 0.0005, innerR - 0.0005, pipeLen - 0.002, 40, 1, true),
+                innerPipeMat
+            );
+            innerDarkBot.position.y = -halfGap - pipeLen / 2;
+            group.add(innerDarkBot);
+
+            return group;
+        }
+
+        function createPipeRotationArrows() {
+            const indicators = [];
+            const arcRadius = 0.081;
+            const yOffsets = [0.055, -0.055];
+
+            yOffsets.forEach(yPos => {
+                const ringGroup = new THREE.Group();
+                ringGroup.position.y = yPos;
+
+                for (let k = 0; k < 2; k++) {
+                    const baseAngle = k * Math.PI;
+                    const arcSpan = Math.PI * 0.32;
+                    const curvePts = [];
+                    const segments = 12;
+
+                    for (let i = 0; i <= segments; i++) {
+                        const a = baseAngle + (i / segments) * arcSpan;
+                        curvePts.push(new THREE.Vector3(Math.cos(a) * arcRadius, 0, Math.sin(a) * arcRadius));
+                    }
+
+                    const curve = new THREE.CatmullRomCurve3(curvePts);
+                    const tubeGeo = new THREE.TubeGeometry(curve, 12, 0.0012, 6, false);
+                    const mat = new THREE.MeshBasicMaterial({
+                        color: 0xf59e0b,
+                        transparent: true,
+                        opacity: 0.9
+                    });
+                    const tubeMesh = new THREE.Mesh(tubeGeo, mat);
+
+                    const endAngle = baseAngle + arcSpan;
+                    const coneGeo = new THREE.ConeGeometry(0.0038, 0.009, 10);
+                    const coneMesh = new THREE.Mesh(coneGeo, mat);
+                    coneMesh.position.set(Math.cos(endAngle) * arcRadius, 0, Math.sin(endAngle) * arcRadius);
+
+                    const tangent = new THREE.Vector3(-Math.sin(endAngle), 0, Math.cos(endAngle)).normalize();
+                    coneMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tangent);
+
+                    ringGroup.add(tubeMesh, coneMesh);
+                    indicators.push(mat);
+                }
+
+                rotatingPipeGroup.add(ringGroup);
+            });
+
+            return indicators;
+        }
+
+        let activeVButtUnit = null;
+
+        function buildWorkpieceGeometry(pos) {
+            while (workpieceGroup.children.length > 0) {
+                workpieceGroup.remove(workpieceGroup.children[0]);
+            }
+            rippleMeshes = [];
+            staticJointBeads = [];
+            draggableJointPieces = [];
+            pipeRotationIndicators = [];
+            rotatingPipeGroup = null;
+            activeVButtUnit = null;
+
+            workpieceGroup.rotation.set(pos.plateRot.x, pos.plateRot.y, pos.plateRot.z);
+
+            if (pos.geometryType === 'butt_plate') {
+                workpieceGroup.add(createBeveledButtPlates(false));
+            } else if (pos.geometryType === 'butt_plate_vertical') {
+                workpieceGroup.add(createBeveledButtPlates(true));
+            } else if (pos.geometryType === 'butt_joint_pair') {
+                const pair = createButtJointComparison();
+                workpieceGroup.add(pair.group);
+                activeVButtUnit = pair.vButtUnit;
+            } else if (pos.geometryType === 'fillet_t') {
+                const unit = new THREE.Group();
+                const basePlate = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.012, 0.16), steelMat);
+                const webPlate = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.13, 0.012), steelMat);
+                webPlate.position.set(0, 0.065, 0);
+                unit.add(basePlate, webPlate);
+
+                if (pos.asmeGroup === 'JOINTS') {
+                    const lbl = createJointLabelSprite('EN ÁNGULO', 'Unión en T (Rincón interior)', '#10b981');
+                    lbl.position.set(0, 0.165, 0);
+                    unit.add(lbl);
+                    draggableJointPieces.push(unit);
+                }
+                workpieceGroup.add(unit);
+            } else if (pos.geometryType === 'lap_joint') {
+                const unit = createLapJointPlates();
+                const lbl = createJointLabelSprite('A SOLAPE', 'Chapas solapadas (Traslapadas)', '#10b981');
+                lbl.position.set(0, 0.068, 0);
+                unit.add(lbl);
+                draggableJointPieces.push(unit);
+                workpieceGroup.add(unit);
+            } else if (pos.geometryType === 'plug_joint') {
+                const unit = createPlugWeldPlates();
+                const lbl = createJointLabelSprite('DE TAPÓN', 'Tapón circular y en ojal', '#10b981');
+                lbl.position.set(0, 0.068, 0);
+                unit.add(lbl);
+                draggableJointPieces.push(unit);
+                workpieceGroup.add(unit);
+            } else if (pos.geometryType === 'surfacing_joint') {
+                const unit = createSurfacingPlate();
+                const lbl = createJointLabelSprite('DE RECARGUE', 'Cordones solapados en superficie', '#10b981');
+                lbl.position.set(0, 0.068, 0);
+                unit.add(lbl);
+                draggableJointPieces.push(unit);
+                workpieceGroup.add(unit);
+            } else if (pos.geometryType === 'pipe_fillet') {
+                const backPlate = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.24, 0.014), steelMat);
+                backPlate.position.set(0, 0, -0.007);
+                const oR = 0.064, iR = 0.048, pLen = 0.14;
+                const pts5f = [
+                    new THREE.Vector2(iR, 0),
+                    new THREE.Vector2(oR, 0),
+                    new THREE.Vector2(oR, 0),
+                    new THREE.Vector2(oR, pLen),
+                    new THREE.Vector2(oR, pLen),
+                    new THREE.Vector2(iR, pLen),
+                    new THREE.Vector2(iR, pLen),
+                    new THREE.Vector2(iR, 0)
+                ];
+                const hollowPipe = new THREE.Mesh(new THREE.LatheGeometry(pts5f, 44), steelMat);
+                hollowPipe.rotation.x = Math.PI / 2;
+                workpieceGroup.add(backPlate, hollowPipe);
+            } else if (pos.geometryType === 'pipe_butt') {
+                rotatingPipeGroup = createBeveledButtPipes();
+                workpieceGroup.add(rotatingPipeGroup);
+                if (pos.id === 'pipe_1g') {
+                    pipeRotationIndicators = createPipeRotationArrows();
+                }
+            }
+
+            const numRipples = 36;
+            const rippleGeo = new THREE.SphereGeometry(0.0095, 12, 10);
+            for (let i = 0; i < numRipples; i++) {
+                const mat = new THREE.MeshStandardMaterial({
+                    color: 0xcbd5e1,
+                    roughness: 0.35,
+                    metalness: 0.75,
+                    emissive: 0x000000,
+                    emissiveIntensity: 0
+                });
+                const rMesh = new THREE.Mesh(rippleGeo, mat);
+                rMesh.scale.set(0.75, 0.65, 1.25);
+                rMesh.visible = false;
+                if (pos.weldPath.type === 'pipe_1g_rot' && rotatingPipeGroup) {
+                    rotatingPipeGroup.add(rMesh);
+                } else if (pos.geometryType === 'butt_joint_pair' && activeVButtUnit) {
+                    activeVButtUnit.add(rMesh);
+                } else {
+                    workpieceGroup.add(rMesh);
+                }
+                rippleMeshes.push(rMesh);
+            }
+
+            buildDirectionArrow(pos);
+        }
+
+        function buildDirectionArrow(pos) {
+            while (directionArrowGroup.children.length > 0) {
+                directionArrowGroup.remove(directionArrowGroup.children[0]);
+            }
+            const arrowMat = new THREE.MeshBasicMaterial({ color: 0x10b981 });
+            const isPipe1G = pos.weldPath.type === 'pipe_1g_rot';
+            const shaftLen = isPipe1G ? 0.035 : 0.08;
+            const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.002, 0.002, shaftLen, 10), arrowMat);
+            const head = new THREE.Mesh(new THREE.ConeGeometry(isPipe1G ? 0.005 : 0.009, isPipe1G ? 0.012 : 0.022, 12), arrowMat);
+            head.position.y = shaftLen / 2 + (isPipe1G ? 0.005 : 0.008);
+
+            const arrow = new THREE.Group();
+            arrow.add(shaft, head);
+
+            if (isPipe1G) {
+                arrow.position.set(0, 0.10, 0.028);
+                arrow.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, -1, 0));
+                directionArrowGroup.add(arrow);
+                return;
+            }
+
+            const pStart = getLocalWeldPoint(pos, 0.25);
+            const pEnd = getLocalWeldPoint(pos, 0.75);
+            const wMat = new THREE.Matrix4().makeRotationFromEuler(
+                new THREE.Euler(pos.plateRot.x, pos.plateRot.y, pos.plateRot.z)
+            );
+            pStart.applyMatrix4(wMat);
+            pEnd.applyMatrix4(wMat);
+
+            const dir = new THREE.Vector3().subVectors(pEnd, pStart).normalize();
+            const mid = new THREE.Vector3().addVectors(pStart, pEnd).multiplyScalar(0.5);
+            mid.add(new THREE.Vector3(0, 0.045, 0.055));
+
+            arrow.position.copy(mid);
+            if (dir.lengthSq() > 0.0001) {
+                arrow.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+            }
+            directionArrowGroup.add(arrow);
+        }
+
+        function getLocalWeldPoint(pos, t) {
+            const wp = pos.weldPath;
+            if (pos.geometryType === 'butt_joint_pair') {
+                const offset = activeVButtUnit ? activeVButtUnit.position : new THREE.Vector3(-0.135, 0, 0);
+                return new THREE.Vector3(offset.x - 0.09 + t * 0.18, offset.y + 0.002, offset.z);
+            } else if (wp.type === 'pipe_1g_rot') {
+                return new THREE.Vector3(wp.radius, 0, 0);
+            } else if (wp.type === 'plug_spiral') {
+                const r = (1 - t * 0.82) * wp.maxRadius;
+                const ang = t * Math.PI * 6;
+                return new THREE.Vector3(
+                    wp.center[0] + Math.cos(ang) * r,
+                    wp.center[1] + t * 0.005,
+                    wp.center[2] + Math.sin(ang) * r
+                );
+            } else if (wp.type === 'circle') {
+                const ang = wp.startAngle + (wp.endAngle - wp.startAngle) * t;
+                return new THREE.Vector3(Math.sin(ang) * wp.radius, 0, Math.cos(ang) * wp.radius);
+            } else if (wp.type === 'circle_z') {
+                const ang = wp.startAngle + (wp.endAngle - wp.startAngle) * t;
+                return new THREE.Vector3(Math.sin(ang) * wp.radius, Math.cos(ang) * wp.radius, 0.012);
+            } else {
+                const s = new THREE.Vector3(...wp.start);
+                const e = new THREE.Vector3(...wp.end);
+                return s.lerp(e, t);
+            }
+        }
+
+        // ============================================================================
+        // PINZA PORTAELECTRODOS SMAW (111) + ARCO + CHISPAS (Mango azul, sin palanca roja)
+        // ============================================================================
+        const stingerGroup = new THREE.Group();
+        stationGroup.add(stingerGroup);
+
+        function buildSMAWStinger() {
+            const rodLength = 0.21;
+            const fluxGeo = new THREE.CylinderGeometry(0.0032, 0.0032, rodLength, 14);
+            fluxGeo.translate(0, rodLength / 2 + 0.003, 0);
+            const fluxMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.75 });
+            const fluxMesh = new THREE.Mesh(fluxGeo, fluxMat);
+
+            const tipGeo = new THREE.CylinderGeometry(0.0018, 0.0018, 0.006, 10);
+            tipGeo.translate(0, 0.003, 0);
+            const tipMat = new THREE.MeshBasicMaterial({ color: 0xffedd5 });
+            const tipMesh = new THREE.Mesh(tipGeo, tipMat);
+
+            const jawGeo = new THREE.BoxGeometry(0.022, 0.032, 0.018);
+            const jawMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.3, metalness: 0.85 });
+            const jawMesh = new THREE.Mesh(jawGeo, jawMat);
+            jawMesh.position.set(0.008, rodLength + 0.005, 0);
+
+            // Mango aislante en azul eléctrico (sin palanca roja)
+            const handleGeo = new THREE.CylinderGeometry(0.013, 0.015, 0.13, 14);
+            const handleMat = new THREE.MeshStandardMaterial({ color: 0x2563eb, roughness: 0.55, metalness: 0.15 });
+            const handleMesh = new THREE.Mesh(handleGeo, handleMat);
+            handleMesh.rotation.z = -Math.PI / 3;
+            handleMesh.position.set(0.058, rodLength + 0.038, 0);
+
+            stingerGroup.add(fluxMesh, tipMesh, jawMesh, handleMesh);
+        }
+        buildSMAWStinger();
+
+        const arcLight = new THREE.PointLight(0x38bdf8, 3.2, 0.65);
+        stationGroup.add(arcLight);
+
+        const arcCore = new THREE.Mesh(
+            new THREE.SphereGeometry(0.009, 12, 12),
+            new THREE.MeshBasicMaterial({ color: 0xe0f2fe })
+        );
+        stationGroup.add(arcCore);
+
+        const sparkCount = 36;
+        const sparkPositions = new Float32Array(sparkCount * 3);
+        const sparkVelocities = [];
+        for (let i = 0; i < sparkCount; i++) {
+            sparkVelocities.push(new THREE.Vector3());
+        }
+        const sparkGeo = new THREE.BufferGeometry();
+        sparkGeo.setAttribute('position', new THREE.BufferAttribute(sparkPositions, 3));
+        const sparkSystem = new THREE.Points(
+            sparkGeo,
+            new THREE.PointsMaterial({ color: 0xfbbf24, size: 0.006, transparent: true, opacity: 0.9 })
+        );
+        stationGroup.add(sparkSystem);
+
+        // ============================================================================
+        // PANEL HOLOGRÁFICO 3D PARA META QUEST 3
+        // ============================================================================
+        const xrHudCanvas = document.createElement('canvas');
+        xrHudCanvas.width = 512;
+        xrHudCanvas.height = 160;
+        const xrHudCtx = xrHudCanvas.getContext('2d');
+        const xrHudTex = new THREE.CanvasTexture(xrHudCanvas);
+        const xrHudMesh = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.42, 0.13),
+            new THREE.MeshBasicMaterial({ map: xrHudTex, transparent: true })
+        );
+        xrHudMesh.position.set(0, 0.30, 0);
+        xrHudMesh.visible = false;
+        stationGroup.add(xrHudMesh);
+
+        function updateXRHud(pos) {
+            xrHudCtx.clearRect(0, 0, 512, 160);
+            xrHudCtx.fillStyle = 'rgba(15, 23, 42, 0.90)';
+            xrHudCtx.strokeStyle = '#f59e0b';
+            xrHudCtx.lineWidth = 4;
+            xrHudCtx.fillRect(6, 6, 500, 148);
+            xrHudCtx.strokeRect(6, 6, 500, 148);
+
+            xrHudCtx.fillStyle = '#fbbf24';
+            xrHudCtx.font = 'bold 17px Inter, Arial, sans-serif';
+            xrHudCtx.fillText('CFGM SOLDADURA Y CALDERERÍA • SAN • SMAW-111', 22, 34);
+
+            xrHudCtx.fillStyle = '#ffffff';
+            xrHudCtx.font = '900 28px Inter, Arial, sans-serif';
+            xrHudCtx.fillText(pos.commonName, 22, 74);
+
+            xrHudCtx.fillStyle = '#38bdf8';
+            xrHudCtx.font = 'bold 24px Inter, Arial, sans-serif';
+            xrHudCtx.fillText(`ASME: ${pos.aws}   |   ISO: ${pos.iso}`, 22, 118);
+
+            xrHudCtx.fillStyle = '#34d399';
+            xrHudCtx.font = 'bold 15px Inter, Arial, sans-serif';
+            xrHudCtx.fillText(`Escala: ${Math.round(state.workpieceScale * 100)}% (Grip 2 manos o Joystick)`, 22, 142);
+
+            xrHudTex.needsUpdate = true;
+        }
+
+        function setWorkpieceScale(newScale) {
+            state.workpieceScale = Math.max(0.5, Math.min(3.2, newScale));
+            stationGroup.scale.setScalar(state.workpieceScale);
+            const lbl = document.getElementById('scale-label');
+            if (lbl) lbl.textContent = `${Math.round(state.workpieceScale * 100)}%`;
+            updateXRHud(state.currentPos);
+        }
+
+        document.getElementById('btn-scale-down').addEventListener('click', () => setWorkpieceScale(state.workpieceScale - 0.2));
+        document.getElementById('btn-scale-up').addEventListener('click', () => setWorkpieceScale(state.workpieceScale + 0.2));
+
+        function updateJointWeldButtonUI() {
+            const btn = document.getElementById('btn-toggle-joint-weld');
+            const dot = document.getElementById('joint-weld-dot');
+            const status = document.getElementById('joint-weld-status');
+            if (!btn) return;
+
+            if (state.showWeldInJoints) {
+                btn.className = 'sticky top-0 z-20 shrink-0 w-full py-2.5 px-3 rounded-xl font-extrabold text-xs flex items-center justify-between transition border cursor-pointer bg-amber-950/95 border-amber-400 text-amber-200 shadow-lg';
+                dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-ping';
+                status.className = 'text-[10px] px-2 py-0.5 rounded-md bg-amber-500 text-slate-950 font-black uppercase';
+                status.textContent = 'Activa';
+            } else {
+                btn.className = 'sticky top-0 z-20 shrink-0 w-full py-2.5 px-3 rounded-xl font-extrabold text-xs flex items-center justify-between transition border cursor-pointer bg-slate-950/95 border-slate-700 text-slate-300 hover:bg-slate-800 shadow-lg';
+                dot.className = 'w-2 h-2 rounded-full bg-slate-500';
+                status.className = 'text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-400 font-black uppercase';
+                status.textContent = 'Oculta';
+            }
+        }
+
+        document.getElementById('btn-toggle-joint-weld').addEventListener('click', () => {
+            state.showWeldInJoints = !state.showWeldInJoints;
+            if (state.showWeldInJoints) {
+                state.progress = 0;
+            }
+            updateJointWeldButtonUI();
+        });
+
+        // ============================================================================
+        // INTERFAZ DE USUARIO Y PESTAÑAS
+        // ============================================================================
+        function renderASMEGrid(groupType) {
+            state.asmeTab = groupType;
+            const grid = document.getElementById('asme-buttons-grid');
+            grid.innerHTML = '';
+
+            ['G', 'F', 'PIPE'].forEach(t => {
+                const btn = document.getElementById(t === 'G' ? 'subtab-g' : t === 'F' ? 'subtab-f' : 'subtab-pipe');
+                if (t === groupType) {
+                    btn.className = 'py-1.5 px-1 rounded-lg text-[11px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/40 transition cursor-pointer';
+                } else {
+                    btn.className = 'py-1.5 px-1 rounded-lg text-[11px] font-extrabold text-slate-400 hover:text-white transition cursor-pointer';
+                }
+            });
+
+            const list = WELDING_POSITIONS.filter(p => p.asmeGroup === groupType);
+            list.forEach(pos => {
+                const active = state.currentPos.id === pos.id;
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `p-2.5 rounded-xl border text-left transition flex flex-col justify-between cursor-pointer ${
+                    active
+                        ? 'bg-amber-500/25 border-amber-400 text-white shadow-md'
+                        : 'bg-slate-900/75 border-slate-800/90 text-slate-300 hover:bg-slate-800/80'
+                }`;
+                btn.innerHTML = `
+                    <span class="text-base font-black ${active ? 'text-amber-300' : 'text-white'}">${pos.aws}</span>
+                    <span class="text-[10px] font-semibold text-slate-400 leading-tight mt-1">${pos.commonName}</span>
+                `;
+                btn.addEventListener('click', () => selectWeldingPosition(pos.id));
+                grid.appendChild(btn);
+            });
+        }
+
+        function renderISOPipeList() {
+            const container = document.getElementById('iso-pipe-container');
+            container.innerHTML = '';
+            const pipes = WELDING_POSITIONS.filter(p => p.asmeGroup === 'PIPE');
+            pipes.forEach(pos => {
+                const active = state.currentPos.id === pos.id;
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `w-full px-3 py-2 rounded-xl border text-left transition flex items-center justify-between cursor-pointer ${
+                    active
+                        ? 'bg-sky-500/25 border-sky-400 text-white'
+                        : 'bg-slate-900/75 border-slate-800 text-slate-300 hover:bg-slate-800/80'
+                }`;
+                btn.innerHTML = `
+                    <div>
+                        <span class="text-sm font-black text-sky-300 block">${pos.iso}</span>
+                        <span class="text-[10px] text-slate-400">${pos.commonName}</span>
+                    </div>
+                    <span class="text-xs font-extrabold text-amber-300">${pos.aws}</span>
+                `;
+                btn.addEventListener('click', () => selectWeldingPosition(pos.id));
+                container.appendChild(btn);
+            });
+        }
+
+        function renderJointsList() {
+            const container = document.getElementById('joints-buttons-list');
+            container.innerHTML = '';
+            const joints = WELDING_POSITIONS.filter(p => p.asmeGroup === 'JOINTS');
+            joints.forEach(pos => {
+                const active = state.currentPos.id === pos.id;
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `w-full px-3 py-2.5 rounded-xl border text-left transition flex items-center justify-between cursor-pointer ${
+                    active
+                        ? 'bg-emerald-500/25 border-emerald-400 text-white shadow-md'
+                        : 'bg-slate-900/75 border-slate-800 text-slate-300 hover:bg-slate-800/80'
+                }`;
+                btn.innerHTML = `
+                    <div>
+                        <span class="text-xs sm:text-sm font-black ${active ? 'text-emerald-300' : 'text-white'} block">${pos.commonName}</span>
+                        <span class="text-[10px] text-slate-400">${pos.iso}</span>
+                    </div>
+                    <span class="text-[11px] font-extrabold px-2 py-0.5 rounded-md bg-slate-800 text-emerald-300">${pos.aws}</span>
+                `;
+                btn.addEventListener('click', () => selectWeldingPosition(pos.id));
+                container.appendChild(btn);
+            });
+        }
+
+        function updateISOCircleHighlight(posId) {
+            const mapNode = {
+                pa_1g: 'pa',
+                pa_1f: 'pa',
+                pb_2f: 'pb',
+                pc_2g: 'pc',
+                pd_4f: 'pd',
+                pe_4g: 'pe',
+                pf_3g: 'pf',
+                pf_3f: 'pf',
+                pg_3g: 'pg',
+                pg_3f: 'pg'
+            };
+            const activeKey = mapNode[posId];
+
+            ['pa', 'pb', 'pc', 'pd', 'pe'].forEach(k => {
+                const c = document.getElementById(`iso-node-${k}`);
+                const arr = document.getElementById(`iso-arr-${k}`);
+                if (c) {
+                    if (k === activeKey) {
+                        c.setAttribute('fill', '#f59e0b');
+                        c.setAttribute('stroke', '#ffffff');
+                    } else {
+                        c.setAttribute('fill', '#0f172a');
+                        c.setAttribute('stroke', '#38bdf8');
+                    }
+                }
+                if (arr) {
+                    if (k === activeKey) {
+                        arr.setAttribute('stroke', '#f59e0b');
+                        arr.setAttribute('marker-end', 'url(#arrow-active)');
+                    } else {
+                        arr.setAttribute('stroke', '#64748b');
+                        arr.setAttribute('marker-end', 'url(#arrow-dim)');
+                    }
+                }
+            });
+
+            ['pf', 'pg'].forEach(k => {
+                const r = document.getElementById(`iso-node-${k}`);
+                if (r) {
+                    if (k === activeKey) {
+                        r.setAttribute('fill', '#f59e0b');
+                        r.setAttribute('stroke', '#ffffff');
+                    } else {
+                        r.setAttribute('fill', '#0f172a');
+                        r.setAttribute('stroke', k === 'pf' ? '#34d399' : '#fb7185');
+                    }
+                }
+            });
+        }
+
+        function renderISOVariantButtons(posId) {
+            const bar = document.getElementById('iso-variant-bar');
+            bar.innerHTML = '';
+
+            let variants = [];
+            if (posId === 'pa_1g' || posId === 'pa_1f') {
+                variants = [
+                    { id: 'pa_1g', label: 'PA A Tope (1G)' },
+                    { id: 'pa_1f', label: 'PA Ángulo (1F)' }
+                ];
+            } else if (posId === 'pf_3g' || posId === 'pf_3f') {
+                variants = [
+                    { id: 'pf_3g', label: 'PF A Tope (3G ↑)' },
+                    { id: 'pf_3f', label: 'PF Ángulo (3F ↑)' }
+                ];
+            } else if (posId === 'pg_3g' || posId === 'pg_3f') {
+                variants = [
+                    { id: 'pg_3g', label: 'PG A Tope (3G ↓)' },
+                    { id: 'pg_3f', label: 'PG Ángulo (3F ↓)' }
+                ];
+            }
+
+            if (variants.length === 0) {
+                bar.classList.add('hidden');
+                bar.classList.remove('grid');
+                return;
+            }
+
+            bar.classList.remove('hidden');
+            bar.classList.add('grid');
+            variants.forEach(v => {
+                const active = state.currentPos.id === v.id;
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = `py-1 px-2 rounded-lg text-[10px] font-extrabold transition cursor-pointer ${
+                    active ? 'bg-amber-500 text-slate-950' : 'text-slate-300 hover:text-white'
+                }`;
+                b.textContent = v.label;
+                b.addEventListener('click', () => selectWeldingPosition(v.id));
+                bar.appendChild(b);
+            });
+        }
+
+        function selectWeldingPosition(id) {
+            const found = WELDING_POSITIONS.find(p => p.id === id);
+            if (!found) return;
+            state.currentPos = found;
+            state.progress = 0;
+
+            buildWorkpieceGeometry(found);
+
+            document.getElementById('badge-type').textContent = found.categoryLabel;
+            document.getElementById('info-common-name').textContent = found.commonName;
+            document.getElementById('info-aws-code').textContent = found.aws;
+            document.getElementById('info-iso-code').textContent = found.iso;
+
+            const lblAsme = document.getElementById('label-box-asme');
+            const lblIso = document.getElementById('label-box-iso');
+            if (found.asmeGroup === 'JOINTS') {
+                lblAsme.textContent = 'UNIÓN';
+                lblIso.textContent = 'DETALLE';
+            } else {
+                lblAsme.textContent = 'ASME';
+                lblIso.textContent = 'ISO 6947';
+            }
+
+            const alert1G = document.getElementById('pipe-1g-alert');
+            if (alert1G) {
+                if (found.id === 'pipe_1g') {
+                    alert1G.classList.remove('hidden');
+                } else {
+                    alert1G.classList.add('hidden');
+                }
+            }
+
+            updateXRHud(found);
+
+            if (state.normMode === 'ASME') {
+                renderASMEGrid(state.asmeTab);
+            } else if (state.normMode === 'ISO') {
+                updateISOCircleHighlight(found.id);
+                renderISOVariantButtons(found.id);
+                if (state.isoTab === 'PIPE') renderISOPipeList();
+            } else if (state.normMode === 'JOINTS') {
+                renderJointsList();
+            }
+        }
+
+        function setNormSystem(mode) {
+            state.normMode = mode;
+            const btnAsme = document.getElementById('norm-asme');
+            const btnIso = document.getElementById('norm-iso');
+            const btnJoints = document.getElementById('norm-joints');
+            const panelAsme = document.getElementById('panel-asme');
+            const panelIso = document.getElementById('panel-iso');
+            const panelJoints = document.getElementById('panel-joints');
+            const boxAsme = document.getElementById('box-asme');
+            const boxIso = document.getElementById('box-iso');
+
+            const inactiveNormClass = 'px-3 py-1.5 rounded-lg text-xs font-extrabold bg-indigo-900/80 text-indigo-100 border border-indigo-400/40 hover:bg-indigo-800/90 hover:text-white transition cursor-pointer';
+            const inactiveJointsClass = 'px-3 py-1.5 rounded-lg text-xs font-extrabold bg-emerald-900/80 text-emerald-100 border border-emerald-400/40 hover:bg-emerald-800/90 hover:text-white transition cursor-pointer';
+
+            btnAsme.className = inactiveNormClass;
+            btnIso.className = inactiveNormClass;
+            btnJoints.className = inactiveJointsClass;
+
+            panelAsme.classList.add('hidden');
+            panelAsme.classList.remove('flex');
+            panelIso.classList.add('hidden');
+            panelIso.classList.remove('flex');
+            panelJoints.classList.add('hidden');
+            panelJoints.classList.remove('flex');
+
+            if (mode === 'ASME') {
+                btnAsme.className = 'px-3 py-1.5 rounded-lg text-xs font-extrabold bg-amber-500 text-slate-950 shadow-md transition cursor-pointer';
+                panelAsme.classList.remove('hidden');
+                panelAsme.classList.add('flex');
+
+                boxAsme.className = 'bg-slate-900/95 border-2 border-amber-500 rounded-xl px-2 py-0.5 text-center min-w-[54px]';
+                boxIso.className = 'bg-slate-900/95 border border-slate-700 rounded-xl px-2 py-0.5 text-center min-w-[54px]';
+
+                if (state.currentPos.asmeGroup === 'PIPE' || state.currentPos.asmeGroup === 'JOINTS') {
+                    renderASMEGrid('G');
+                    selectWeldingPosition('pa_1g');
+                } else {
+                    renderASMEGrid(state.asmeTab);
+                    selectWeldingPosition(state.currentPos.id);
+                }
+            } else if (mode === 'ISO') {
+                btnIso.className = 'px-3 py-1.5 rounded-lg text-xs font-extrabold bg-sky-400 text-slate-950 shadow-md transition cursor-pointer';
+                panelIso.classList.remove('hidden');
+                panelIso.classList.add('flex');
+
+                boxIso.className = 'bg-slate-900/95 border-2 border-sky-400 rounded-xl px-2 py-0.5 text-center min-w-[54px]';
+                boxAsme.className = 'bg-slate-900/95 border border-slate-700 rounded-xl px-2 py-0.5 text-center min-w-[54px]';
+
+                if (state.currentPos.asmeGroup === 'JOINTS') {
+                    selectWeldingPosition('pa_1g');
+                }
+                updateISOCircleHighlight(state.currentPos.id);
+                renderISOVariantButtons(state.currentPos.id);
+                if (state.isoTab === 'PIPE') renderISOPipeList();
+            } else if (mode === 'JOINTS') {
+                btnJoints.className = 'px-3 py-1.5 rounded-lg text-xs font-extrabold bg-emerald-400 text-slate-950 shadow-md transition cursor-pointer';
+                panelJoints.classList.remove('hidden');
+                panelJoints.classList.add('flex');
+
+                boxAsme.className = 'bg-slate-900/95 border-2 border-emerald-400 rounded-xl px-2 py-0.5 text-center min-w-[54px]';
+                boxIso.className = 'bg-slate-900/95 border border-slate-700 rounded-xl px-2 py-0.5 text-center min-w-[54px]';
+
+                state.showWeldInJoints = false;
+                updateJointWeldButtonUI();
+                selectWeldingPosition('joint_butt');
+                renderJointsList();
+            }
+        }
+
+        document.getElementById('norm-asme').addEventListener('click', () => setNormSystem('ASME'));
+        document.getElementById('norm-iso').addEventListener('click', () => setNormSystem('ISO'));
+        document.getElementById('norm-joints').addEventListener('click', () => setNormSystem('JOINTS'));
+
+        document.getElementById('subtab-g').addEventListener('click', () => {
+            renderASMEGrid('G');
+            selectWeldingPosition('pa_1g');
+        });
+        document.getElementById('subtab-f').addEventListener('click', () => {
+            renderASMEGrid('F');
+            selectWeldingPosition('pa_1f');
+        });
+        document.getElementById('subtab-pipe').addEventListener('click', () => {
+            renderASMEGrid('PIPE');
+            selectWeldingPosition('pipe_1g');
+        });
+
+        document.getElementById('isotab-wheel').addEventListener('click', () => {
+            state.isoTab = 'WHEEL';
+            document.getElementById('isotab-wheel').className = 'py-1 px-2 rounded-lg text-[11px] font-extrabold bg-sky-500/20 text-sky-300 border border-sky-500/40 transition cursor-pointer';
+            document.getElementById('isotab-pipe').className = 'py-1 px-2 rounded-lg text-[11px] font-extrabold text-slate-400 hover:text-white transition cursor-pointer';
+            document.getElementById('iso-wheel-container').classList.remove('hidden');
+            document.getElementById('iso-wheel-container').classList.add('flex');
+            document.getElementById('iso-pipe-container').classList.add('hidden');
+            document.getElementById('iso-pipe-container').classList.remove('flex');
+            selectWeldingPosition('pa_1g');
+        });
+
+        document.getElementById('isotab-pipe').addEventListener('click', () => {
+            state.isoTab = 'PIPE';
+            document.getElementById('isotab-pipe').className = 'py-1 px-2 rounded-lg text-[11px] font-extrabold bg-sky-500/20 text-sky-300 border border-sky-500/40 transition cursor-pointer';
+            document.getElementById('isotab-wheel').className = 'py-1 px-2 rounded-lg text-[11px] font-extrabold text-slate-400 hover:text-white transition cursor-pointer';
+            document.getElementById('iso-wheel-container').classList.add('hidden');
+            document.getElementById('iso-wheel-container').classList.remove('flex');
+            document.getElementById('iso-pipe-container').classList.remove('hidden');
+            document.getElementById('iso-pipe-container').classList.add('flex');
+            renderISOPipeList();
+            selectWeldingPosition('pipe_1g');
+        });
+
+        document.querySelectorAll('.iso-node').forEach(node => {
+            node.addEventListener('click', () => {
+                const targetId = node.getAttribute('data-isoid');
+                selectWeldingPosition(targetId);
+            });
+        });
+
+        // ============================================================================
+        // ARRASTRE INDEPENDIENTE DE PIEZAS Y CONTROLES DE CÁMARA
+        // ============================================================================
+        const domCanvas = renderer.domElement;
+        const raycaster = new THREE.Raycaster();
+        const pointerNDC = new THREE.Vector2();
+        const dragPlane = new THREE.Plane();
+        const dragIntersect = new THREE.Vector3();
+        const dragOffset = new THREE.Vector3();
+        let draggedPiece = null;
+
+        function getNormalizedPointer(clientX, clientY) {
+            const rect = domCanvas.getBoundingClientRect();
+            pointerNDC.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+            pointerNDC.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+        }
+
+        function tryPickDraggablePiece(clientX, clientY) {
+            if (state.normMode !== 'JOINTS' || draggableJointPieces.length === 0) return false;
+            getNormalizedPointer(clientX, clientY);
+            raycaster.setFromCamera(pointerNDC, camera);
+
+            const hits = raycaster.intersectObjects(draggableJointPieces, true);
+            if (hits.length > 0) {
+                let obj = hits[0].object;
+                while (obj && !draggableJointPieces.includes(obj)) {
+                    obj = obj.parent;
+                }
+                if (obj) {
+                    draggedPiece = obj;
+                    const worldPos = new THREE.Vector3();
+                    draggedPiece.getWorldPosition(worldPos);
+                    const camDir = new THREE.Vector3();
+                    camera.getWorldDirection(camDir);
+                    dragPlane.setFromNormalAndCoplanarPoint(camDir.negate(), worldPos);
+
+                    if (raycaster.ray.intersectPlane(dragPlane, dragIntersect)) {
+                        dragOffset.copy(worldPos).sub(dragIntersect);
+                    }
+                    domCanvas.style.cursor = 'grabbing';
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function moveDraggedPiece(clientX, clientY) {
+            if (!draggedPiece) return;
+            getNormalizedPointer(clientX, clientY);
+            raycaster.setFromCamera(pointerNDC, camera);
+            if (raycaster.ray.intersectPlane(dragPlane, dragIntersect)) {
+                const targetWorld = dragIntersect.clone().add(dragOffset);
+                if (draggedPiece.parent) {
+                    draggedPiece.parent.worldToLocal(targetWorld);
+                    draggedPiece.position.copy(targetWorld);
+                }
+            }
+        }
+
+        domCanvas.addEventListener('mousedown', e => {
+            if (tryPickDraggablePiece(e.clientX, e.clientY)) return;
+            camOrbit.isDragging = true;
+            camOrbit.prevX = e.clientX;
+            camOrbit.prevY = e.clientY;
+        });
+        window.addEventListener('mouseup', () => {
+            draggedPiece = null;
+            camOrbit.isDragging = false;
+            domCanvas.style.cursor = 'default';
+        });
+        window.addEventListener('mousemove', e => {
+            if (draggedPiece) {
+                moveDraggedPiece(e.clientX, e.clientY);
+                return;
+            }
+            if (!camOrbit.isDragging) return;
+            camOrbit.theta -= (e.clientX - camOrbit.prevX) * 0.007;
+            camOrbit.phi -= (e.clientY - camOrbit.prevY) * 0.007;
+            camOrbit.prevX = e.clientX;
+            camOrbit.prevY = e.clientY;
+            updateDesktopCamera();
+        });
+        domCanvas.addEventListener('wheel', e => {
+            camOrbit.radius += e.deltaY * 0.0005;
+            updateDesktopCamera();
+        }, { passive: true });
+
+        domCanvas.addEventListener('touchstart', e => {
+            if (e.touches.length === 1) {
+                if (tryPickDraggablePiece(e.touches[0].clientX, e.touches[0].clientY)) return;
+                camOrbit.isDragging = true;
+                camOrbit.prevX = e.touches[0].clientX;
+                camOrbit.prevY = e.touches[0].clientY;
+            }
+        }, { passive: true });
+        window.addEventListener('touchend', () => {
+            draggedPiece = null;
+            camOrbit.isDragging = false;
+        });
+        window.addEventListener('touchmove', e => {
+            if (draggedPiece && e.touches.length === 1) {
+                moveDraggedPiece(e.touches[0].clientX, e.touches[0].clientY);
+                return;
+            }
+            if (!camOrbit.isDragging || e.touches.length !== 1) return;
+            camOrbit.theta -= (e.touches[0].clientX - camOrbit.prevX) * 0.007;
+            camOrbit.phi -= (e.touches[0].clientY - camOrbit.prevY) * 0.007;
+            camOrbit.prevX = e.touches[0].clientX;
+            camOrbit.prevY = e.touches[0].clientY;
+            updateDesktopCamera();
+        }, { passive: true });
+
+        document.getElementById('btn-toggle-anim').addEventListener('click', e => {
+            state.isPlaying = !state.isPlaying;
+            e.currentTarget.textContent = state.isPlaying ? '⏸' : '▶';
+        });
+
+        document.getElementById('btn-reset-cam').addEventListener('click', () => {
+            camOrbit.theta = 0.52;
+            camOrbit.phi = 1.15;
+            camOrbit.radius = 0.62;
+            updateDesktopCamera();
+            setWorkpieceScale(1.0);
+            buildWorkpieceGeometry(state.currentPos);
+        });
+
+        // ============================================================================
+        // META QUEST 3 (AR / VR)
+        // ============================================================================
+        function showToast(msg) {
+            const t = document.getElementById('xr-toast');
+            t.textContent = msg;
+            t.classList.remove('hidden');
+            setTimeout(() => t.classList.add('hidden'), 3500);
+        }
+
+        async function startXR(mode) {
+            if (!navigator.xr) {
+                showToast('Abre esta web en el navegador de tus Meta Quest 3 para activar XR.');
+                return;
+            }
+            try {
+                const supported = await navigator.xr.isSessionSupported(mode);
+                if (!supported) {
+                    showToast(`Modo ${mode} no disponible en este dispositivo.`);
+                    return;
+                }
+                const session = await navigator.xr.requestSession(mode, {
+                    optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking']
+                });
+                renderer.xr.setSession(session);
+                xrHudMesh.visible = true;
+                if (mode === 'immersive-ar') {
+                    scene.background = null;
+                }
+                session.addEventListener('end', () => {
+                    scene.background = new THREE.Color(0x090d16);
+                    xrHudMesh.visible = false;
+                });
+            } catch (err) {
+                showToast('Error al iniciar XR: ' + err.message);
+            }
+        }
+
+        document.getElementById('btn-enter-ar').addEventListener('click', () => startXR('immersive-ar'));
+        document.getElementById('btn-enter-vr').addEventListener('click', () => startXR('immersive-vr'));
+
+        const controller0 = renderer.xr.getController(0);
+        const controller1 = renderer.xr.getController(1);
+        scene.add(controller0, controller1);
+
+        const activeGrips = new Set();
+        const controllerGrabbedPiece = new Map();
+        let initialPinchDistance = 0;
+        let initialScaleOnPinch = 1.0;
+
+        function findNearestDraggablePiece(ctrlWorldPos) {
+            if (state.normMode !== 'JOINTS' || draggableJointPieces.length === 0) return null;
+            let best = null;
+            let minDist = 0.22 * state.workpieceScale;
+            const wp = new THREE.Vector3();
+            draggableJointPieces.forEach(piece => {
+                piece.getWorldPosition(wp);
+                const d = wp.distanceTo(ctrlWorldPos);
+                if (d < minDist) {
+                    minDist = d;
+                    best = piece;
+                }
+            });
+            return best;
+        }
+
+        [controller0, controller1].forEach((ctrl, idx) => {
+            const rayLine = new THREE.Line(
+                new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -0.35)]),
+                new THREE.LineBasicMaterial({ color: idx === 0 ? 0xf59e0b : 0x10b981 })
+            );
+            ctrl.add(rayLine);
+
+            ctrl.addEventListener('selectstart', () => {
+                const curIdx = WELDING_POSITIONS.findIndex(p => p.id === state.currentPos.id);
+                const nextPos = WELDING_POSITIONS[(curIdx + 1) % WELDING_POSITIONS.length];
+                selectWeldingPosition(nextPos.id);
+            });
+
+            ctrl.addEventListener('squeezestart', () => {
+                const ctrlPos = new THREE.Vector3().setFromMatrixPosition(ctrl.matrixWorld);
+                const nearPiece = findNearestDraggablePiece(ctrlPos);
+
+                if (nearPiece && activeGrips.size === 0) {
+                    controllerGrabbedPiece.set(ctrl, { piece: nearPiece, originalParent: nearPiece.parent });
+                    ctrl.attach(nearPiece);
+                    return;
+                }
+
+                activeGrips.add(ctrl);
+                if (activeGrips.size === 1) {
+                    ctrl.attach(stationGroup);
+                } else if (activeGrips.size === 2) {
+                    scene.attach(stationGroup);
+                    const p0 = new THREE.Vector3().setFromMatrixPosition(controller0.matrixWorld);
+                    const p1 = new THREE.Vector3().setFromMatrixPosition(controller1.matrixWorld);
+                    initialPinchDistance = p0.distanceTo(p1);
+                    initialScaleOnPinch = state.workpieceScale;
+                }
+            });
+
+            ctrl.addEventListener('squeezeend', () => {
+                if (controllerGrabbedPiece.has(ctrl)) {
+                    const info = controllerGrabbedPiece.get(ctrl);
+                    if (info.originalParent) {
+                        info.originalParent.attach(info.piece);
+                    }
+                    controllerGrabbedPiece.delete(ctrl);
+                    return;
+                }
+
+                activeGrips.delete(ctrl);
+                scene.attach(stationGroup);
+                if (activeGrips.size === 1) {
+                    const remainingCtrl = Array.from(activeGrips)[0];
+                    remainingCtrl.attach(stationGroup);
+                }
+            });
+        });
+
+        // ============================================================================
+        // BUCLE DE ANIMACIÓN 3D
+        // ============================================================================
+        const clock = new THREE.Clock();
+
+        function animate() {
+            const dt = clock.getDelta();
+            const elapsed = clock.getElapsedTime();
+            const pos = state.currentPos;
+
+            if (renderer.xr.isPresenting) {
+                if (activeGrips.size === 2 && initialPinchDistance > 0.02) {
+                    const p0 = new THREE.Vector3().setFromMatrixPosition(controller0.matrixWorld);
+                    const p1 = new THREE.Vector3().setFromMatrixPosition(controller1.matrixWorld);
+                    const currDist = p0.distanceTo(p1);
+                    const ratio = currDist / initialPinchDistance;
+                    setWorkpieceScale(initialScaleOnPinch * ratio);
+                }
+
+                const session = renderer.xr.getSession();
+                if (session && session.inputSources) {
+                    for (const src of session.inputSources) {
+                        if (src.gamepad && src.gamepad.axes && src.gamepad.axes.length >= 4) {
+                            const axisY = src.gamepad.axes[3];
+                            if (Math.abs(axisY) > 0.25) {
+                                setWorkpieceScale(state.workpieceScale - axisY * dt * 0.85);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (state.isPlaying) {
+                state.progress += dt * 0.20;
+                if (state.progress > 1) state.progress = 0;
+            }
+
+            if (pos.weldPath.type === 'pipe_1g_rot' && rotatingPipeGroup) {
+                rotatingPipeGroup.rotation.y = -state.progress * Math.PI * 1.35;
+                if (pipeRotationIndicators.length > 0) {
+                    const blinkOpacity = 0.25 + 0.75 * (0.5 + 0.5 * Math.sin(elapsed * 8.0));
+                    pipeRotationIndicators.forEach(mat => {
+                        mat.opacity = blinkOpacity;
+                    });
+                }
+            }
+
+            const localTip = getLocalWeldPoint(pos, state.progress);
+
+            if (pos.weaveMode === 'vertical_up') {
+                localTip.x += Math.sin(elapsed * 16) * 0.0085;
+            } else if (pos.weaveMode === 'vertical_up_fillet') {
+                const osc = Math.sin(elapsed * 16) * 0.0065;
+                localTip.y -= osc;
+                localTip.z += osc;
+            } else if (pos.weaveMode === 'surfacing') {
+                localTip.z += Math.sin(elapsed * 18) * 0.0075;
+            } else if (pos.weaveMode === 'pipe_1g') {
+                localTip.z += Math.sin(elapsed * 12) * 0.002;
+            } else {
+                localTip.y += Math.sin(elapsed * 20) * 0.0012;
+            }
+
+            const worldMat = new THREE.Matrix4().makeRotationFromEuler(
+                new THREE.Euler(pos.plateRot.x, pos.plateRot.y, pos.plateRot.z)
+            );
+            const tipPos = localTip.clone().applyMatrix4(worldMat);
+
+            const showWeldingProcess = (state.normMode !== 'JOINTS') || state.showWeldInJoints;
+
+            syncWeldingSound();
+
+            stingerGroup.visible = showWeldingProcess;
+            arcCore.visible = showWeldingProcess;
+            arcLight.visible = showWeldingProcess;
+            sparkSystem.visible = showWeldingProcess;
+            directionArrowGroup.visible = showWeldingProcess;
+
+            staticJointBeads.forEach(bead => {
+                bead.visible = showWeldingProcess;
+            });
+
+            if (showWeldingProcess) {
+                stingerGroup.position.copy(tipPos);
+                const targetQuat = new THREE.Quaternion().setFromUnitVectors(
+                    new THREE.Vector3(0, 1, 0),
+                    pos.electrodeVec
+                );
+                stingerGroup.quaternion.copy(targetQuat);
+
+                arcCore.position.copy(tipPos);
+                arcLight.position.copy(tipPos);
+                arcLight.intensity = 2.6 + Math.sin(elapsed * 55) * 1.1;
+
+                for (let i = 0; i < rippleMeshes.length; i++) {
+                    const rNorm = i / rippleMeshes.length;
+                    const mesh = rippleMeshes[i];
+                    if (rNorm <= state.progress) {
+                        mesh.visible = true;
+                        if (pos.weldPath.type === 'pipe_1g_rot') {
+                            const ang = rNorm * Math.PI * 1.35;
+                            const rad = pos.weldPath.radius;
+                            mesh.position.set(Math.cos(ang) * rad, 0, -Math.sin(ang) * rad);
+                        } else if (pos.geometryType === 'butt_joint_pair') {
+                            mesh.position.set(-0.09 + rNorm * 0.18, 0.002, 0);
+                        } else {
+                            mesh.position.copy(getLocalWeldPoint(pos, rNorm));
+                        }
+
+                        const heat = 1 - (state.progress - rNorm) * 4.2;
+                        if (heat > 0) {
+                            mesh.material.emissive.setHSL(0.07 * heat, 1.0, 0.45 * heat);
+                            mesh.material.emissiveIntensity = heat * 2.0;
+                        } else {
+                            mesh.material.emissiveIntensity = 0;
+                        }
+                    } else {
+                        mesh.visible = false;
+                    }
+                }
+
+                const posAttr = sparkGeo.attributes.position;
+                for (let i = 0; i < sparkCount; i++) {
+                    let sx = posAttr.getX(i);
+                    let sy = posAttr.getY(i);
+                    let sz = posAttr.getZ(i);
+
+                    if (Math.random() < 0.16 || sy < -0.25) {
+                        sx = tipPos.x;
+                        sy = tipPos.y;
+                        sz = tipPos.z;
+                        sparkVelocities[i].set(
+                            (Math.random() - 0.5) * 0.42,
+                            (Math.random() - 0.2) * 0.42,
+                            (Math.random() - 0.5) * 0.42
+                        );
+                    } else {
+                        sx += sparkVelocities[i].x * dt;
+                        sy += sparkVelocities[i].y * dt;
+                        sz += sparkVelocities[i].z * dt;
+                        sparkVelocities[i].y -= 0.9 * dt;
+                    }
+                    posAttr.setXYZ(i, sx, sy, sz);
+                }
+                posAttr.needsUpdate = true;
+            } else {
+                for (let i = 0; i < rippleMeshes.length; i++) {
+                    rippleMeshes[i].visible = false;
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        window.onload = function () {
+            setNormSystem('ASME');
+            selectWeldingPosition('pa_1g');
+            renderer.setAnimationLoop(animate);
+        };
+    </script>
+</body>
+</html>
