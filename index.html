@@ -53,6 +53,18 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
+        @media (max-width: 639px) {
+            body {
+                height: 100dvh;
+            }
+            header.ui-layer {
+                padding: 0.35rem 0.5rem 0 0.5rem;
+                gap: 0.25rem;
+            }
+            #mobile-aside-wrapper.collapsed-mobile {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col justify-between">
@@ -63,62 +75,73 @@
     <!-- CABECERA SUPERIOR -->
     <header class="ui-layer w-full px-2.5 pt-2 flex flex-wrap items-center justify-between gap-2">
         <!-- Identificación académica oficial -->
-        <div class="glass-panel px-3 py-1.5 rounded-2xl flex items-center gap-2.5 pointer-events-auto shadow-lg">
-            <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow text-slate-950 font-black text-xs shrink-0" title="Soldadura y Posiciones de Soldeo">
-                <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Casco / Pantalla de soldadura -->
-                    <path d="M6 4.5C6 3.67 6.67 3 7.5 3H16.5C17.33 3 18 3.67 18 4.5V13.5C18 17.5 14.5 20.5 12 21.5C9.5 20.5 6 17.5 6 13.5V4.5Z" fill="#0f172a" stroke="#0f172a" stroke-width="1.5" stroke-linejoin="round"/>
-                    <!-- Visor inactínico iluminado -->
-                    <rect x="8" y="6.5" width="8" height="4.5" rx="1" fill="#38bdf8" stroke="#ffffff" stroke-width="1.2"/>
-                    <!-- Destello de arco en el visor -->
-                    <path d="M12 7.5L12.6 8.4L13.5 8.7L12.6 9L12 9.9L11.4 9L10.5 8.7L11.4 8.4L12 7.5Z" fill="#ffffff"/>
-                    <!-- Rejilla inferior / Mentonera -->
-                    <line x1="9.5" y1="14.5" x2="14.5" y2="14.5" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/>
-                    <line x1="10.5" y1="17" x2="13.5" y2="17" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-            </div>
-            <div class="leading-tight">
-                <div class="flex flex-wrap items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider text-amber-400">
-                    <span>CFGM SOLDADURA Y CALDERERÍA</span>
-                    <span class="text-slate-600">•</span>
-                    <span class="text-sky-400">Módulo: SAN</span>
-                    <span class="text-slate-600">•</span>
-                    <span class="text-emerald-400">Procedimiento: SMAW-111</span>
-                    <span class="text-slate-600">•</span>
-                    <span class="text-slate-300">CIFP Cerdeño</span>
+        <div class="glass-panel px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-2xl flex items-center gap-2 sm:gap-2.5 pointer-events-auto shadow-lg w-full sm:w-auto justify-between sm:justify-start">
+            <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
+                <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow text-slate-950 font-black text-xs shrink-0" title="Soldadura y Posiciones de Soldeo">
+                    <svg viewBox="0 0 24 24" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Casco / Pantalla de soldadura -->
+                        <path d="M6 4.5C6 3.67 6.67 3 7.5 3H16.5C17.33 3 18 3.67 18 4.5V13.5C18 17.5 14.5 20.5 12 21.5C9.5 20.5 6 17.5 6 13.5V4.5Z" fill="#0f172a" stroke="#0f172a" stroke-width="1.5" stroke-linejoin="round"/>
+                        <!-- Visor inactínico iluminado -->
+                        <rect x="8" y="6.5" width="8" height="4.5" rx="1" fill="#38bdf8" stroke="#ffffff" stroke-width="1.2"/>
+                        <!-- Destello de arco en el visor -->
+                        <path d="M12 7.5L12.6 8.4L13.5 8.7L12.6 9L12 9.9L11.4 9L10.5 8.7L11.4 8.4L12 7.5Z" fill="#ffffff"/>
+                        <!-- Rejilla inferior / Mentonera -->
+                        <line x1="9.5" y1="14.5" x2="14.5" y2="14.5" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/>
+                        <line x1="10.5" y1="17" x2="13.5" y2="17" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
                 </div>
-                <h1 class="font-black text-sm sm:text-base text-white tracking-tight">Tipos de juntas y posiciones de soldeo</h1>
+                <div class="leading-tight truncate">
+                    <div class="hidden sm:flex flex-wrap items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider text-amber-400">
+                        <span>CFGM SOLDADURA Y CALDERERÍA</span>
+                        <span class="text-slate-600">•</span>
+                        <span class="text-sky-400">Módulo: SAN</span>
+                        <span class="text-slate-600">•</span>
+                        <span class="text-emerald-400">Procedimiento: SMAW-111</span>
+                        <span class="text-slate-600">•</span>
+                        <span class="text-slate-300">CIFP Cerdeño</span>
+                    </div>
+                    <div class="flex sm:hidden items-center gap-1 text-[8.5px] font-extrabold uppercase tracking-wider text-amber-400">
+                        <span>CFGM • SAN (SMAW-111) • CIFP Cerdeño</span>
+                    </div>
+                    <h1 class="font-black text-xs sm:text-base text-white tracking-tight truncate">Tipos de juntas y posiciones de soldeo</h1>
+                </div>
             </div>
+
+            <!-- Botón exclusivo para móvil: Plegar/Desplegar el panel de posiciones para dejar libre el 3D -->
+            <button id="btn-mobile-panel-toggle" type="button" class="sm:hidden px-2 py-1 rounded-xl text-[10px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/40 shrink-0 flex items-center gap-1 cursor-pointer">
+                <span id="mobile-toggle-text">Ocultar panel</span>
+                <span id="mobile-toggle-icon">▴</span>
+            </button>
         </div>
 
         <!-- Selector de Pestañas y Controles -->
-        <div class="flex flex-wrap items-center gap-1.5 pointer-events-auto">
-            <div class="glass-panel px-2.5 py-1.5 rounded-2xl flex items-end gap-2 shadow-lg">
+        <div class="flex flex-wrap items-center justify-between sm:justify-end w-full sm:w-auto gap-1 sm:gap-1.5 pointer-events-auto">
+            <div class="glass-panel px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-2xl flex items-end gap-1 sm:gap-2 shadow-lg">
                 
                 <!-- Agrupación de las 2 normas bajo el rótulo "Posiciones de soldeo" -->
                 <div class="flex flex-col items-center">
-                    <span class="text-[9px] font-black uppercase tracking-widest text-amber-300/95 mb-1 leading-none">
+                    <span class="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-amber-300/95 mb-0.5 sm:mb-1 leading-none">
                         Posiciones de soldeo
                     </span>
                     <div class="flex items-center gap-1 bg-slate-900/60 p-0.5 rounded-xl border border-indigo-400/25">
-                        <button id="norm-asme" type="button" class="px-3 py-1.5 rounded-lg text-xs font-extrabold bg-indigo-900/80 text-indigo-100 border border-indigo-400/40 hover:bg-indigo-800/90 hover:text-white transition cursor-pointer">
+                        <button id="norm-asme" type="button" class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-extrabold bg-indigo-900/80 text-indigo-100 border border-indigo-400/40 hover:bg-indigo-800/90 hover:text-white transition cursor-pointer">
                             Norma ASME / AWS
                         </button>
-                        <button id="norm-iso" type="button" class="px-3 py-1.5 rounded-lg text-xs font-extrabold bg-indigo-900/80 text-indigo-100 border border-indigo-400/40 hover:bg-indigo-800/90 hover:text-white transition cursor-pointer">
+                        <button id="norm-iso" type="button" class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-extrabold bg-indigo-900/80 text-indigo-100 border border-indigo-400/40 hover:bg-indigo-800/90 hover:text-white transition cursor-pointer">
                             UNE-EN ISO 6947
                         </button>
                     </div>
                 </div>
 
-                <div class="h-7 w-[1px] bg-slate-700/70 self-center"></div>
+                <div class="h-6 sm:h-7 w-[1px] bg-slate-700/70 self-center"></div>
 
                 <!-- Pestaña independiente para Tipos de Junta -->
                 <div class="flex flex-col items-center">
-                    <span class="text-[9px] font-black uppercase tracking-widest text-emerald-300/95 mb-1 leading-none">
+                    <span class="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-emerald-300/95 mb-0.5 sm:mb-1 leading-none">
                         Geometría de Unión
                     </span>
                     <div class="p-0.5">
-                        <button id="norm-joints" type="button" class="px-3 py-1.5 rounded-lg text-xs font-extrabold bg-emerald-900/80 text-emerald-100 border border-emerald-400/40 hover:bg-emerald-800/90 hover:text-white transition cursor-pointer">
+                        <button id="norm-joints" type="button" class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-extrabold bg-emerald-900/80 text-emerald-100 border border-emerald-400/40 hover:bg-emerald-800/90 hover:text-white transition cursor-pointer">
                             Tipos de Junta
                         </button>
                     </div>
@@ -126,29 +149,29 @@
             </div>
 
             <!-- Controles de Escala, Animación y Meta Quest 3 -->
-            <div class="glass-panel p-1.5 rounded-2xl flex items-center gap-1 shadow-lg">
+            <div class="glass-panel p-1 sm:p-1.5 rounded-2xl flex items-center gap-1 shadow-lg">
                 <div class="flex items-center bg-slate-900/90 rounded-xl px-1 py-0.5 border border-slate-700/70" title="Escalar pieza 3D">
-                    <button id="btn-scale-down" type="button" class="w-6 h-6 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 font-black text-xs cursor-pointer">-</button>
-                    <span id="scale-label" class="text-[10px] font-extrabold text-amber-400 px-1.5 min-w-[38px] text-center">100%</span>
-                    <button id="btn-scale-up" type="button" class="w-6 h-6 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 font-black text-xs cursor-pointer">+</button>
+                    <button id="btn-scale-down" type="button" class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 font-black text-xs cursor-pointer">-</button>
+                    <span id="scale-label" class="text-[9px] sm:text-[10px] font-extrabold text-amber-400 px-1 sm:px-1.5 min-w-[32px] sm:min-w-[38px] text-center">100%</span>
+                    <button id="btn-scale-up" type="button" class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 font-black text-xs cursor-pointer">+</button>
                 </div>
 
-                <button id="btn-toggle-anim" type="button" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-amber-400 transition cursor-pointer" title="Pausar/Reanudar">
+                <button id="btn-toggle-anim" type="button" class="px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-amber-400 transition cursor-pointer" title="Pausar/Reanudar">
                     ⏸
                 </button>
-                <div class="flex items-center bg-slate-900/90 rounded-xl px-1.5 py-0.5 border border-slate-700/70 gap-1" title="Sonido de arco SMAW (chisporroteo)">
-                    <button id="btn-toggle-sound" type="button" class="w-6 h-6 rounded-lg text-amber-400 hover:text-white hover:bg-slate-800 font-bold text-xs cursor-pointer flex items-center justify-center" title="Activar/Silenciar sonido de soldadura">
+                <div class="flex items-center bg-slate-900/90 rounded-xl px-1 sm:px-1.5 py-0.5 border border-slate-700/70 gap-1" title="Sonido de arco SMAW (chisporroteo)">
+                    <button id="btn-toggle-sound" type="button" class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg text-amber-400 hover:text-white hover:bg-slate-800 font-bold text-xs cursor-pointer flex items-center justify-center" title="Activar/Silenciar sonido de soldadura">
                         🔊
                     </button>
-                    <input id="sound-volume" type="range" min="0" max="100" value="45" class="w-14 h-1.5 accent-amber-400 bg-slate-700 rounded-lg cursor-pointer" title="Volumen del arco">
+                    <input id="sound-volume" type="range" min="0" max="100" value="45" class="hidden sm:block w-14 h-1.5 accent-amber-400 bg-slate-700 rounded-lg cursor-pointer" title="Volumen del arco">
                 </div>
-                <button id="btn-reset-cam" type="button" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 transition cursor-pointer" title="Centrar vista">
+                <button id="btn-reset-cam" type="button" class="px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 transition cursor-pointer" title="Centrar vista">
                     🎥
                 </button>
-                <button id="btn-enter-ar" type="button" class="px-2 py-1.5 rounded-xl text-[10px] font-extrabold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 transition cursor-pointer" title="Meta Quest 3 AR">
+                <button id="btn-enter-ar" type="button" class="px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-xl text-[9px] sm:text-[10px] font-extrabold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 transition cursor-pointer" title="Meta Quest 3 AR">
                     🥽 AR
                 </button>
-                <button id="btn-enter-vr" type="button" class="px-2 py-1.5 rounded-xl text-[10px] font-extrabold bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 transition cursor-pointer" title="Meta Quest 3 VR">
+                <button id="btn-enter-vr" type="button" class="px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-xl text-[9px] sm:text-[10px] font-extrabold bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 transition cursor-pointer" title="Meta Quest 3 VR">
                     🏛️ VR
                 </button>
             </div>
@@ -156,61 +179,60 @@
     </header>
 
     <!-- AVISO INTERMITENTE PARA TUBERÍA 1G (más pequeño, justo al lado de la animación) -->
-    <div id="pipe-1g-alert" class="hidden fixed top-24 left-1/2 -translate-x-[15%] z-20 pointer-events-none">
+    <div id="pipe-1g-alert" class="hidden fixed top-28 sm:top-24 left-1/2 -translate-x-1/2 sm:-translate-x-[15%] z-20 pointer-events-none">
         <div class="animate-pulse bg-amber-500/15 border border-amber-400/80 text-amber-200 px-2.5 py-1 rounded-lg shadow-lg backdrop-blur-md flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-            <span class="text-[11px] font-black uppercase tracking-wider">🔄 Aquí lo que gira es el tubo</span>
+            <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wider">🔄 Aquí lo que gira es el tubo</span>
         </div>
     </div>
 
     <!-- ZONA CENTRAL -->
-    <main class="ui-layer flex-1 min-h-0 flex flex-col sm:flex-row items-stretch sm:items-start justify-between px-2.5 py-2 gap-2 overflow-hidden">
+    <main class="ui-layer flex-1 min-h-0 flex flex-col sm:flex-row items-stretch sm:items-start justify-end sm:justify-between px-2 sm:px-2.5 py-1 sm:py-2 gap-1.5 sm:gap-2 overflow-hidden">
 
-        <!-- PANEL IZQUIERDO -->
-        <aside class="glass-panel w-full sm:w-64 rounded-2xl p-2.5 flex flex-col gap-2 pointer-events-auto shadow-2xl max-h-[42vh] sm:max-h-full overflow-y-auto custom-scroll">
+        <!-- PANEL IZQUIERDO (En móvil se sitúa abajo de forma compacta y plegable para dejar libre el centro 3D) -->
+        <aside id="mobile-aside-wrapper" class="glass-panel w-full sm:w-64 rounded-2xl p-2 sm:p-2.5 flex flex-col gap-1.5 sm:gap-2 pointer-events-auto shadow-2xl max-h-[25vh] sm:max-h-full overflow-y-auto custom-scroll order-2 sm:order-1">
 
             <!-- MODO 1: NORMA ASME / AWS -->
-            <div id="panel-asme" class="flex flex-col gap-2">
+            <div id="panel-asme" class="flex flex-col gap-1.5 sm:gap-2">
                 <div class="grid grid-cols-3 gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
-                    <button id="subtab-g" type="button" class="py-1.5 px-1 rounded-lg text-[11px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/40 transition cursor-pointer">
+                    <button id="subtab-g" type="button" class="py-1 sm:py-1.5 px-1 rounded-lg text-[10px] sm:text-[11px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/40 transition cursor-pointer">
                         A Tope (G)
                     </button>
-                    <button id="subtab-f" type="button" class="py-1.5 px-1 rounded-lg text-[11px] font-extrabold text-slate-400 hover:text-white transition cursor-pointer">
+                    <button id="subtab-f" type="button" class="py-1 sm:py-1.5 px-1 rounded-lg text-[10px] sm:text-[11px] font-extrabold text-slate-400 hover:text-white transition cursor-pointer">
                         Ángulo (F)
                     </button>
-                    <button id="subtab-pipe" type="button" class="py-1.5 px-1 rounded-lg text-[11px] font-extrabold text-slate-400 hover:text-white transition cursor-pointer">
+                    <button id="subtab-pipe" type="button" class="py-1 sm:py-1.5 px-1 rounded-lg text-[10px] sm:text-[11px] font-extrabold text-slate-400 hover:text-white transition cursor-pointer">
                         Tubería
                     </button>
                 </div>
 
-                <div id="asme-buttons-grid" class="grid grid-cols-2 gap-1.5"></div>
+                <div id="asme-buttons-grid" class="grid grid-cols-3 sm:grid-cols-2 gap-1 sm:gap-1.5"></div>
             </div>
 
             <!-- MODO 2: NORMA EUROPEA UNE-EN ISO 6947 -->
-            <div id="panel-iso" class="hidden flex-col gap-2">
+            <div id="panel-iso" class="hidden flex-col gap-1.5 sm:gap-2">
                 <div class="grid grid-cols-2 gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
-                    <button id="isotab-wheel" type="button" class="py-1 px-2 rounded-lg text-[11px] font-extrabold bg-sky-500/20 text-sky-300 border border-sky-500/40 transition cursor-pointer">
-                        Chapas (Rueda)
+                    <button id="isotab-wheel" type="button" class="py-1 px-2 rounded-lg text-[10px] sm:text-[11px] font-extrabold bg-sky-500/20 text-sky-300 border border-sky-500/40 transition cursor-pointer">
+                        Chapas (Rueda ISO)
                     </button>
-                    <button id="isotab-pipe" type="button" class="py-1 px-2 rounded-lg text-[11px] font-extrabold text-slate-400 hover:text-white transition cursor-pointer">
-                        Tubería
+                    <button id="isotab-pipe" type="button" class="py-1 px-2 rounded-lg text-[10px] sm:text-[11px] font-extrabold text-slate-400 hover:text-white transition cursor-pointer">
+                        Tubería ISO
                     </button>
                 </div>
 
-                <!-- Rueda UNE-EN ISO 6947 (PA arriba 12h, sentido horario + flechas al centro) -->
+                <!-- Rueda interactiva UNE-EN ISO 6947 -->
                 <div id="iso-wheel-container" class="flex flex-col items-center">
-                    <div class="relative w-full max-w-[215px] aspect-square flex items-center justify-center">
-                        <svg viewBox="0 0 250 250" class="w-full h-full select-none">
+                    <div class="w-full bg-slate-950/85 rounded-xl p-1.5 border border-slate-800/90 flex flex-col items-center">
+                        <svg viewBox="0 0 250 235" class="w-full max-w-[180px] sm:max-w-[225px] h-auto select-none">
                             <defs>
-                                <marker id="arrow-dim" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto">
-                                    <path d="M 0 1 L 9 5 L 0 9 z" fill="#64748b"/>
+                                <marker id="arrow-active" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#f59e0b" />
                                 </marker>
-                                <marker id="arrow-active" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-                                    <path d="M 0 1 L 9 5 L 0 9 z" fill="#f59e0b"/>
+                                <marker id="arrow-dim" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse">
+                                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b" />
                                 </marker>
                             </defs>
 
-                            <circle cx="125" cy="125" r="76" fill="none" stroke="#1e293b" stroke-width="10" />
                             <circle cx="125" cy="125" r="76" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.45" />
 
                             <path d="M 145 20 A 105 105 0 0 1 220 75" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow-dim)" />
@@ -282,9 +304,9 @@
             </div>
 
             <!-- MODO 3: TIPOS DE JUNTA -->
-            <div id="panel-joints" class="hidden flex-col gap-2">
+            <div id="panel-joints" class="hidden flex-col gap-1.5 sm:gap-2">
                 <!-- Botón exclusivo para activar/desactivar soldadura y electrodo en Tipos de Junta -->
-                <button id="btn-toggle-joint-weld" type="button" class="sticky top-0 z-20 shrink-0 w-full py-2.5 px-3 rounded-xl font-extrabold text-xs flex items-center justify-between transition border cursor-pointer bg-slate-950/95 border-slate-700 text-slate-300 hover:bg-slate-800 shadow-lg">
+                <button id="btn-toggle-joint-weld" type="button" class="sticky top-0 z-20 shrink-0 w-full py-2 sm:py-2.5 px-3 rounded-xl font-extrabold text-xs flex items-center justify-between transition border cursor-pointer bg-slate-950/95 border-slate-700 text-slate-300 hover:bg-slate-800 shadow-lg">
                     <span class="flex items-center gap-1.5">
                         <span id="joint-weld-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
                         <span>Simulación de soldeo</span>
@@ -292,7 +314,7 @@
                     <span id="joint-weld-status" class="text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-400 font-black uppercase">Oculta</span>
                 </button>
 
-                <div class="shrink-0 bg-emerald-950/40 border border-emerald-500/30 rounded-xl px-2.5 py-1.5 text-[11px] text-emerald-200 font-semibold leading-tight">
+                <div class="hidden sm:block shrink-0 bg-emerald-950/40 border border-emerald-500/30 rounded-xl px-2.5 py-1.5 text-[11px] text-emerald-200 font-semibold leading-tight">
                     💡 En <b>Meta Quest 3</b>: usa el botón de agarre lateral (<i>Grip</i>) de 1 mando para mover la junta, o de <b>ambos mandos a la vez</b> para escalarla.
                 </div>
                 <div id="joints-buttons-list" class="flex flex-col gap-1.5"></div>
@@ -300,9 +322,9 @@
         </aside>
 
         <!-- BARRA INFERIOR COMPACTA -->
-        <section class="glass-panel self-center sm:self-end rounded-2xl px-3 py-1.5 pointer-events-auto shadow-2xl flex items-center gap-3 border border-slate-700/80">
+        <section class="glass-panel self-center sm:self-end rounded-2xl px-2.5 sm:px-3 py-1 sm:py-1.5 pointer-events-auto shadow-2xl flex items-center gap-2.5 sm:gap-3 border border-slate-700/80 order-1 sm:order-2">
             <div>
-                <span id="badge-type" class="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                <span id="badge-type" class="text-[8px] sm:text-[9px] font-extrabold uppercase tracking-wider px-1.5 sm:px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30">
                     Chapas a Tope
                 </span>
                 <h2 id="info-common-name" class="text-xs sm:text-sm font-black text-white leading-tight mt-0.5">
@@ -311,27 +333,27 @@
             </div>
 
             <div class="flex items-center gap-1.5">
-                <div id="box-asme" class="bg-slate-900/95 border-2 border-amber-500 rounded-xl px-2 py-0.5 text-center min-w-[54px]">
+                <div id="box-asme" class="bg-slate-900/95 border-2 border-amber-500 rounded-xl px-2 py-0.5 text-center min-w-[48px] sm:min-w-[54px]">
                     <span id="label-box-asme" class="block text-[8px] font-extrabold uppercase text-amber-400">ASME</span>
-                    <span id="info-aws-code" class="text-sm sm:text-base font-black text-white leading-none">1G</span>
+                    <span id="info-aws-code" class="text-xs sm:text-base font-black text-white leading-none">1G</span>
                 </div>
-                <div id="box-iso" class="bg-slate-900/95 border border-slate-700 rounded-xl px-2 py-0.5 text-center min-w-[54px]">
+                <div id="box-iso" class="bg-slate-900/95 border border-slate-700 rounded-xl px-2 py-0.5 text-center min-w-[48px] sm:min-w-[54px]">
                     <span id="label-box-iso" class="block text-[8px] font-extrabold uppercase text-sky-400">ISO 6947</span>
-                    <span id="info-iso-code" class="text-sm sm:text-base font-black text-sky-300 leading-none">PA</span>
+                    <span id="info-iso-code" class="text-xs sm:text-base font-black text-sky-300 leading-none">PA</span>
                 </div>
             </div>
         </section>
     </main>
 
     <!-- PIE DE PÁGINA: AUTORÍA Y LICENCIA CREATIVE COMMONS -->
-    <footer class="ui-layer w-full px-2.5 pb-1.5 flex justify-center pointer-events-none">
-        <div class="glass-panel px-3 py-1 rounded-xl pointer-events-auto border border-slate-700/70 shadow-lg max-w-5xl text-center">
-            <p class="text-[9px] sm:text-[10px] text-slate-300 leading-tight">
+    <footer class="ui-layer w-full px-2 sm:px-2.5 pb-1 sm:pb-1.5 flex justify-center pointer-events-none">
+        <div class="glass-panel px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-xl pointer-events-auto border border-slate-700/70 shadow-lg max-w-5xl text-center">
+            <p class="text-[8px] sm:text-[10px] text-slate-300 leading-tight">
                 <span class="font-bold text-sky-300">CC BY-NC-ND 4.0</span>
-                <span class="text-slate-400 font-medium"> (Licencia Creative Commons: Atribución - NoComercial - SinDerivadas 4.0 Internacional)</span>
-                <span class="hidden md:inline text-slate-500 mx-1">•</span>
-                <span class="block md:inline text-[8.5px] sm:text-[9.5px] text-slate-400">
-                    Usted es libre de compartir y distribuir este material en cualquier medio siempre que reconozca los créditos a <strong class="text-amber-300">José Manuel García Agudín</strong>, no haga uso comercial y no realice modificaciones o adaptaciones de la obra.
+                <span class="hidden sm:inline text-slate-400 font-medium"> (Licencia Creative Commons: Atribución - NoComercial - SinDerivadas 4.0 Internacional)</span>
+                <span class="text-slate-500 mx-1">•</span>
+                <span class="text-[8px] sm:text-[9.5px] text-slate-400">
+                    Reconocer créditos a <strong class="text-amber-300">José Manuel García Agudín</strong> (NoComercial - SinDerivadas).
                 </span>
             </p>
         </div>
@@ -372,15 +394,47 @@
         stationGroup.add(workpieceGroup);
 
         const camOrbit = { theta: 0.52, phi: 1.15, radius: 0.62, isDragging: false, prevX: 0, prevY: 0 };
+        let mobilePanelCollapsed = false;
 
         function updateDesktopCamera() {
-            const x = camOrbit.radius * Math.sin(camOrbit.phi) * Math.sin(camOrbit.theta);
-            const y = camOrbit.radius * Math.cos(camOrbit.phi);
-            const z = camOrbit.radius * Math.sin(camOrbit.phi) * Math.cos(camOrbit.theta);
+            const isMobilePortrait = window.innerWidth < 640;
+            const effectiveRadius = isMobilePortrait ? Math.max(camOrbit.radius, 0.76) : camOrbit.radius;
+            const x = effectiveRadius * Math.sin(camOrbit.phi) * Math.sin(camOrbit.theta);
+            const y = effectiveRadius * Math.cos(camOrbit.phi);
+            const z = effectiveRadius * Math.sin(camOrbit.phi) * Math.cos(camOrbit.theta);
             camera.position.set(x, y, z);
-            camera.lookAt(0, 0, 0);
+
+            // En móvil desplazamos ligeramente el punto de mira para que la probeta
+            // quede encuadrada justo en el hueco central libre entre la cabecera y el panel inferior
+            if (isMobilePortrait) {
+                const targetY = mobilePanelCollapsed ? -0.02 : -0.08;
+                camera.lookAt(0, targetY, 0);
+            } else {
+                camera.lookAt(0, 0, 0);
+            }
         }
         updateDesktopCamera();
+
+        // Botón para plegar/desplegar el panel en pantallas móviles
+        const btnMobileToggle = document.getElementById('btn-mobile-panel-toggle');
+        if (btnMobileToggle) {
+            btnMobileToggle.addEventListener('click', () => {
+                const asideEl = document.getElementById('mobile-aside-wrapper');
+                const txtEl = document.getElementById('mobile-toggle-text');
+                const iconEl = document.getElementById('mobile-toggle-icon');
+                mobilePanelCollapsed = !mobilePanelCollapsed;
+                if (mobilePanelCollapsed) {
+                    asideEl.classList.add('collapsed-mobile');
+                    txtEl.textContent = 'Mostrar panel';
+                    iconEl.textContent = '▾';
+                } else {
+                    asideEl.classList.remove('collapsed-mobile');
+                    txtEl.textContent = 'Ocultar panel';
+                    iconEl.textContent = '▴';
+                }
+                updateDesktopCamera();
+            });
+        }
 
         // ============================================================================
         // BASE DE DATOS DE POSICIONES Y TIPOS DE JUNTA (GRADO MEDIO - SMAW 111)
@@ -1866,12 +1920,12 @@
             panelJoints.classList.remove('flex');
 
             if (mode === 'ASME') {
-                btnAsme.className = 'px-3 py-1.5 rounded-lg text-xs font-extrabold bg-amber-500 text-slate-950 shadow-md transition cursor-pointer';
+                btnAsme.className = 'px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-extrabold bg-amber-500 text-slate-950 shadow-md transition cursor-pointer';
                 panelAsme.classList.remove('hidden');
                 panelAsme.classList.add('flex');
 
-                boxAsme.className = 'bg-slate-900/95 border-2 border-amber-500 rounded-xl px-2 py-0.5 text-center min-w-[54px]';
-                boxIso.className = 'bg-slate-900/95 border border-slate-700 rounded-xl px-2 py-0.5 text-center min-w-[54px]';
+                boxAsme.className = 'bg-slate-900/95 border-2 border-amber-500 rounded-xl px-2 py-0.5 text-center min-w-[48px] sm:min-w-[54px]';
+                boxIso.className = 'bg-slate-900/95 border border-slate-700 rounded-xl px-2 py-0.5 text-center min-w-[48px] sm:min-w-[54px]';
 
                 if (state.currentPos.asmeGroup === 'PIPE' || state.currentPos.asmeGroup === 'JOINTS') {
                     renderASMEGrid('G');
@@ -1881,12 +1935,12 @@
                     selectWeldingPosition(state.currentPos.id);
                 }
             } else if (mode === 'ISO') {
-                btnIso.className = 'px-3 py-1.5 rounded-lg text-xs font-extrabold bg-sky-400 text-slate-950 shadow-md transition cursor-pointer';
+                btnIso.className = 'px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-extrabold bg-sky-400 text-slate-950 shadow-md transition cursor-pointer';
                 panelIso.classList.remove('hidden');
                 panelIso.classList.add('flex');
 
-                boxIso.className = 'bg-slate-900/95 border-2 border-sky-400 rounded-xl px-2 py-0.5 text-center min-w-[54px]';
-                boxAsme.className = 'bg-slate-900/95 border border-slate-700 rounded-xl px-2 py-0.5 text-center min-w-[54px]';
+                boxIso.className = 'bg-slate-900/95 border-2 border-sky-400 rounded-xl px-2 py-0.5 text-center min-w-[48px] sm:min-w-[54px]';
+                boxAsme.className = 'bg-slate-900/95 border border-slate-700 rounded-xl px-2 py-0.5 text-center min-w-[48px] sm:min-w-[54px]';
 
                 if (state.currentPos.asmeGroup === 'JOINTS') {
                     selectWeldingPosition('pa_1g');
@@ -1895,12 +1949,12 @@
                 renderISOVariantButtons(state.currentPos.id);
                 if (state.isoTab === 'PIPE') renderISOPipeList();
             } else if (mode === 'JOINTS') {
-                btnJoints.className = 'px-3 py-1.5 rounded-lg text-xs font-extrabold bg-emerald-400 text-slate-950 shadow-md transition cursor-pointer';
+                btnJoints.className = 'px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-extrabold bg-emerald-400 text-slate-950 shadow-md transition cursor-pointer';
                 panelJoints.classList.remove('hidden');
                 panelJoints.classList.add('flex');
 
-                boxAsme.className = 'bg-slate-900/95 border-2 border-emerald-400 rounded-xl px-2 py-0.5 text-center min-w-[54px]';
-                boxIso.className = 'bg-slate-900/95 border border-slate-700 rounded-xl px-2 py-0.5 text-center min-w-[54px]';
+                boxAsme.className = 'bg-slate-900/95 border-2 border-emerald-400 rounded-xl px-2 py-0.5 text-center min-w-[48px] sm:min-w-[54px]';
+                boxIso.className = 'bg-slate-900/95 border border-slate-700 rounded-xl px-2 py-0.5 text-center min-w-[48px] sm:min-w-[54px]';
 
                 state.showWeldInJoints = false;
                 updateJointWeldButtonUI();
@@ -2034,14 +2088,17 @@
             if (!camOrbit.isDragging) return;
             camOrbit.theta -= (e.clientX - camOrbit.prevX) * 0.007;
             camOrbit.phi -= (e.clientY - camOrbit.prevY) * 0.007;
+            camOrbit.phi = Math.max(0.15, Math.min(Math.PI - 0.15, camOrbit.phi));
             camOrbit.prevX = e.clientX;
             camOrbit.prevY = e.clientY;
             updateDesktopCamera();
         });
         domCanvas.addEventListener('wheel', e => {
-            camOrbit.radius += e.deltaY * 0.0005;
+            camOrbit.radius = Math.max(0.28, Math.min(1.4, camOrbit.radius + e.deltaY * 0.0005));
             updateDesktopCamera();
         }, { passive: true });
+
+        let touchPinchDist = 0;
 
         domCanvas.addEventListener('touchstart', e => {
             if (e.touches.length === 1) {
@@ -2049,13 +2106,28 @@
                 camOrbit.isDragging = true;
                 camOrbit.prevX = e.touches[0].clientX;
                 camOrbit.prevY = e.touches[0].clientY;
+            } else if (e.touches.length === 2) {
+                camOrbit.isDragging = false;
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                touchPinchDist = Math.hypot(dx, dy);
             }
         }, { passive: true });
         window.addEventListener('touchend', () => {
             draggedPiece = null;
             camOrbit.isDragging = false;
+            touchPinchDist = 0;
         });
         window.addEventListener('touchmove', e => {
+            if (e.touches.length === 2 && touchPinchDist > 0) {
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                const newDist = Math.hypot(dx, dy);
+                camOrbit.radius = Math.max(0.28, Math.min(1.4, camOrbit.radius - (newDist - touchPinchDist) * 0.002));
+                touchPinchDist = newDist;
+                updateDesktopCamera();
+                return;
+            }
             if (draggedPiece && e.touches.length === 1) {
                 moveDraggedPiece(e.touches[0].clientX, e.touches[0].clientY);
                 return;
@@ -2360,6 +2432,7 @@
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+            updateDesktopCamera();
         });
 
         window.onload = function () {
